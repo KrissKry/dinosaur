@@ -4,7 +4,11 @@
 #include "opencv2/core.hpp"
 #define COLOR_MODE 0
 
+using Duration = std::chrono::milliseconds;
+
 enum COLORS {ORANGE, GREEN, BLUE};
+
+
 
 int H_MIN = 0;
 int H_MAX = 256;
@@ -98,8 +102,12 @@ int main() {
 
     std::vector< std::vector< cv::Point >> contours;
     std::vector< cv::Vec4i > hierarchy;
+    std::vector< std::chrono::duration<double, std::milli> > filter_time;
+    std::chrono::duration<double, std::milli> total_time;
 
     int licznik = 0;
+    
+
     auto start = std::chrono::steady_clock::now();
 
     while (true) {
@@ -107,6 +115,7 @@ int main() {
         webcam.read(frame);
         licznik++;
 
+        auto filter_start = std::chrono::high_resolution_clock::now();
         cv::cvtColor(frame, frameHSV, cv::COLOR_BGR2HSV);
     
         cv::inRange(frameHSV, cv::Scalar(H_MIN, S_MIN, V_MIN), cv::Scalar(H_MAX, S_MAX, V_MAX), frameThreshold);
@@ -126,6 +135,13 @@ int main() {
         }        
 
 
+        auto filter_end = std::chrono::high_resolution_clock::now();
+        
+        std::chrono::duration<double, std::milli> fp_ms = filter_end - filter_start;
+
+        filter_time.push_back(fp_ms);
+
+
         cv::imshow("Kamerka", frame);
         cv::imshow("Filtr", frameThreshold);
 
@@ -134,13 +150,27 @@ int main() {
     
     }
 
-    auto end = std::chrono::steady_clock::now();
-
-    std::chrono::duration<double> seconds = end - start;
     
 
-    double klatki = licznik / seconds.count();
-    std::cout << klatki << " FPS" << std::endl;
+    //count total time in ms
+    for (int i = 0; i < filter_time.size(); i++)
+    {
+        total_time += filter_time.at(i);
+        std::cout<< filter_time.at(i).count() << std::endl;
+    }
+
+
+    
+    auto avg_time = total_time / filter_time.size();
+    std::cout << avg_time.count() << std::endl;
+
+
+
+    // auto end = std::chrono::steady_clock::now();
+    // std::chrono::duration<double> seconds = end - start;
+
+    // double klatki = licznik / seconds.count();
+    // std::cout << klatki << " FPS" << std::endl;
 
 
     return 0;
