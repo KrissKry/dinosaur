@@ -2,16 +2,12 @@
 #define FILTERPROCESS_HPP
 #include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #include "sharedqueue.hpp"
-#include "sharedmemory.hpp"
+// #include "sharedmemory.hpp"
 #include "util.hpp"
 #include "memorybuffer.hpp"
-/*
-    FilterProcess awaits for a message in shared memory and then reads frame from shared memory.
-    It has to convert the frame from bytes to opencv::mat type. 
-*/
-
 
 /*
     1. Acquire a frame from shared memory
@@ -32,23 +28,23 @@ class FilterProcess {
 
     private:
         // SharedQueue shque;
-        // SharedMemory shmem = false;
         MemoryBuffer membuf = false;
-
+       
         cv::Mat frame;
-        unsigned char *frame_bytes;
+        char *frame_bytes = new char[WIDTH*HEIGHT*3]; 
 
         coords_message coords{};
 
     public:
         FilterProcess() {}
         ~FilterProcess() {}
-        void TestOnce();
-        // void getFrame();
-        // void convertFrame();
-        // void handleFrame();
+        // void TestOnce();
 
-        // void sendCoords();
+        void getFrame();
+        void convertFrame();
+        void handleFrame();
+
+        void sendCoords();
 
         [[noreturn]] void run();
 

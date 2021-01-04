@@ -2,22 +2,22 @@
 #include "../include/producerprocess.hpp"
 
 void ProducerProcess::readFrame() {
-    //well obviously read a fucking frame ay
-    cv::Mat frame;
-    webcam.read(frame);
-    frameBuffer.push_back(frame);
+
+    // cv::Mat temp_frame;
+    webcam.read(temp_frame);
+    frameBuffer.push_back(temp_frame);
     frame_counter++;
+    std::cout << "\n-----------------" << frame_counter << "-----------------\n";
+    // cv::imshow("Oryginalna", temp_frame);
+    // cv::waitKey(0);
 }
 
 void ProducerProcess::convertFrame() {
     
-    //add semaphore await? or sth
-    cv::Mat frame;
-    // std::vector<std::byte< v_char //needs c++17
-    // std::vector<uchar> v_char;
-    // char buf[WIDTH*HEIGHT];
+    //to-do to chyba do zmiany jednak 
     do {
         if ( frameBuffer.size() > 0) {
+
             frame = frameBuffer.front();
             frameBuffer.pop_front();
             break;
@@ -25,49 +25,38 @@ void ProducerProcess::convertFrame() {
     
     } while ( frameBuffer.size() == 0);
     
+    
+    // int size = frame.total() * frame.elemSize();
+    // std::cout << "Rozmiar klatki mat: " << size << std::endl;
+    // std::cout << "Rozmiar bufora:" << sizeof(output_buffer)<< std::endl;
+    // std::cout << "Rozmiar wsk bufora" << sizeof(*output_buffer) << std::endl;
+    
     //convert cv::Mat to bytes
-    int size = frame.total() * frame.elemSize();
-    // std::cout<< "size got: " << size << std::endl;
-    // unsigned char * buf = new unsigned char[size];
-    // std::cout << buf[0] << " ";
-    char *buf = new char[WIDTH * HEIGHT * 3];
-    memcpy(buf, frame.data, WIDTH*HEIGHT*3 );
-    std::cout << "Attempt to send:\n" << buf[0] << buf[1] << buf[2];
+    memcpy(output_buffer, frame.data, WIDTH*HEIGHT*3 );
 
-    // shmem.push(buf);    
-    membuf.push(sizeof(buf), buf);
-    std::cout << "sent to shmem\n" << std::flush;
+
+
 }
 
 void ProducerProcess::sendFrame() {
+
     //use shared queue and shared memory to put current frame in the buffer
+    std::cout << "[P] Sending: " << output_buffer[0] << output_buffer[1] << output_buffer[2] << std::endl;
+    // std::cout << "aa: " << output_buffer[200000] << " " << output_buffer[2000000] << std::endl;
+    membuf.push(BUFFER_SIZE, output_buffer);
+
 }
 
 [[noreturn]] void ProducerProcess::run() {
-
-    // resize singleframebuf in bytes properly;
-
-    webcam.open(0);
-    // shque = true;
     
+    std::cout << "[I] Producer running [[noreturn]].\n";
 
-    if ( !webcam.isOpened() ) {
-        // ??
-        std::cerr << "Webcam failed to open" << std::endl;
-        
-    } else {
-        std::cout<< "Webcam opened" << std::endl;
-    }
-
-    //tutaj dodac zegar
-    int cnt = 0;
     while ( true ) {
-    // while ( webcam.isOpened() ) {
         readFrame();
         convertFrame();
-        // sendFrame();
-        std::cout << "iteration no. " << cnt << std::fflush;
-        cnt++;
+        sendFrame();
+        
+        sleep(1);
     }
 
     // tutaj dodac drugi zegar
@@ -75,11 +64,9 @@ void ProducerProcess::sendFrame() {
     // std::cout << "FPS: " << tutaj << std::endl;
 }
 
-void ProducerProcess::TestOnce()
-{
-    webcam.open(0);
-
-    readFrame();
-    convertFrame();
-    std::cout << "finished";
-}
+// void ProducerProcess::TestOnce()
+// {
+//     readFrame();
+//     convertFrame();
+//     sendFrame();
+// }
