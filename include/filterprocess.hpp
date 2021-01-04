@@ -6,6 +6,7 @@
 #include "sharedqueue.hpp"
 #include "sharedmemory.hpp"
 #include "util.hpp"
+#include "memorybuffer.hpp"
 /*
     FilterProcess awaits for a message in shared memory and then reads frame from shared memory.
     It has to convert the frame from bytes to opencv::mat type. 
@@ -31,17 +32,18 @@ class FilterProcess {
 
     private:
         // SharedQueue shque;
-        SharedMemory shmem = false;
+        // SharedMemory shmem = false;
+        MemoryBuffer membuf = false;
 
         cv::Mat frame;
         unsigned char *frame_bytes;
 
         coords_message coords{};
-        
+
     public:
         FilterProcess() {}
         ~FilterProcess() {}
-
+        void TestOnce();
         // void getFrame();
         // void convertFrame();
         // void handleFrame();
@@ -51,7 +53,7 @@ class FilterProcess {
         [[noreturn]] void run();
 
 
-        void testFilter();
+
 };
 
 

@@ -7,7 +7,7 @@
 #include "sharedmemory.hpp"
 #include "sharedqueue.hpp"
 #include <vector>
-
+#include "memorybuffer.hpp"
 /*
     Producer reads a frame from webcam and converts it to bytes to send it in a shared memory.
     After putting it in a buffer, it sends a com. 
@@ -18,8 +18,8 @@ class ProducerProcess {
     private:
         // SharedQueue shque = true;
         // SharedMemory shmem = new SharedMemory(true);
-        SharedMemory shmem = true;
-
+        // SharedMemory shmem = true;
+        MemoryBuffer membuf = true;
         cv::VideoCapture webcam;
         std::deque<cv::Mat> frameBuffer;
         int frame_counter{}; 
@@ -32,7 +32,7 @@ class ProducerProcess {
         void readFrame();
         void convertFrame();
         void sendFrame();
-        
+        void TestOnce();
         [[noreturn]] void run();
 };
 

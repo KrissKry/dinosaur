@@ -27,29 +27,16 @@ void ProducerProcess::convertFrame() {
     
     //convert cv::Mat to bytes
     int size = frame.total() * frame.elemSize();
-    std::cout<< "size got: " << size << std::endl;
+    // std::cout<< "size got: " << size << std::endl;
     // unsigned char * buf = new unsigned char[size];
     // std::cout << buf[0] << " ";
-    unsigned char *buf = new unsigned char[WIDTH * HEIGHT * 3];
+    char *buf = new char[WIDTH * HEIGHT * 3];
     memcpy(buf, frame.data, WIDTH*HEIGHT*3 );
-    std::cout << "copied shit\n" << std::fflush;
-    // std::cout << buf[0] << " ";
-    // for (unsigned int y = 0; y < frame.rows; y++)
-    // {
-    //     for(unsigned int x = 0; x < frame.cols; x++)
-    //     {
-    //         v_char.push_back(*(uchar*)(frame.data + y * frame.step + x));
+    std::cout << "Attempt to send:\n" << buf[0] << buf[1] << buf[2];
 
-    //     }
-    // }
-
-    // std::cout<< "liczba elementow obrazka: " << v_char.size() << std::endl;
-    //these converted bytes add to char buffer
-    // shque.push
-    // shmem.coś
-
-    shmem.push(buf);    
-    std::cout << "sent to shmem\n" << std::fflush;
+    // shmem.push(buf);    
+    membuf.push(sizeof(buf), buf);
+    std::cout << "sent to shmem\n" << std::flush;
 }
 
 void ProducerProcess::sendFrame() {
@@ -86,4 +73,13 @@ void ProducerProcess::sendFrame() {
     // tutaj dodac drugi zegar
     // policzyc fps x d
     // std::cout << "FPS: " << tutaj << std::endl;
+}
+
+void ProducerProcess::TestOnce()
+{
+    webcam.open(0);
+
+    readFrame();
+    convertFrame();
+    std::cout << "finished";
 }

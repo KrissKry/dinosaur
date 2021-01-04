@@ -5,14 +5,22 @@
     std::cout << "buenos dias\n";
     // std::cout<< "Filtering awoken\n";
     while (true) {
-        testFilter();
+        // testFilter();
         // getFrame();
         // convertFrame();
         // handleFrame();
         // sendCoords();
     }
 }
+void FilterProcess::TestOnce() {
+    // data test_data;
+    char *buforkurwa = new char [WIDTH*HEIGHT*3];
+    std::cout << "Trying popin\n";
+    membuf.pop(sizeof(buforkurwa), buforkurwa);
 
+    // shmem.pop(buforkurwa);
+    std::cout << buforkurwa[0] << buforkurwa[1] << buforkurwa[2] << std::endl;
+}
 // void FilterProcess::getFrame() {
 //     // memcpy(frame_bytes, shmem.pop(), )
 // }
@@ -65,12 +73,3 @@
 //     shque.push(&coords);
 // }
 
-void FilterProcess::testFilter() {
-
-    std::cout<< "AAAAAAaa\n" << std::fflush;
-    data frame_data;
-    shmem.pop( frame_data.buf );
-    std::cout << "aaa " << frame_data.buf[0] << std::endl;
-    std::fflush;
-
-}
