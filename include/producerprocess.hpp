@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 
-#include "sharedqueue.hpp"
+#include "messagequeue.hpp"
 #include "memorybuffer.hpp"
 
 /*
@@ -17,7 +17,8 @@ class ProducerProcess {
 
     private:
         // SharedQueue shque = true;
-
+        MessageQueue shque = {false, MQ_PRODUCER_GAME};
+        game_message message_in;
         MemoryBuffer membuf = true;
 
         cv::VideoCapture webcam = cv::VideoCapture(0);
@@ -26,20 +27,27 @@ class ProducerProcess {
         
         cv::Mat temp_frame;
         cv::Mat frame;
+        cv::Mat move_duck;
+        cv::Mat move_jump;
+        cv::Mat move_idle;
         
         int frame_counter{}; 
         
         char* output_buffer = new char[WIDTH*HEIGHT*3];
 
     public:
-        ProducerProcess() {}
-        ~ProducerProcess() {}
+        ProducerProcess();
+        ~ProducerProcess() {
+            delete output_buffer;
+        }
 
         void readFrame();
         void convertFrame();
         void sendFrame();
         // void TestOnce();
-
+        void getRequiredMove();
+        void tryChoosingFrame();
+        void loadInstantFrames();
         [[noreturn]] void run();
 };
 

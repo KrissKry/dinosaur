@@ -6,10 +6,12 @@
 #include "../include/controlprocess.hpp"
 #include "../include/filterprocess.hpp"
 #include "../include/producerprocess.hpp"
-#include "../include/messagequeue.hpp"
+// #include "../include/messagequeue.hpp"
+#include "../include/gameprocess.hpp"
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <mqueue.h>
+#include <random>
 
 enum SCHED_OPTIONS { FIFO, DEADLINE, DEFAULT };
 
@@ -64,11 +66,20 @@ int main(int argc, char* argv[])
     // mq1->push(&coord2);
     // mq2->pop(&coord1);
     // std::cout << "Got: " << coord1.x << " " << coord1.y << std::endl;
+//     enum class Key_Press {
+//     W = (int)'w',
+//     S = (int)'s',
+//     NON = (int)' '
 
 
+        // std::cout <<
+        // return (char)(Key_Press( dist(m_mt) ));
     pid_t producer_id;
     pid_t filter_id;
     pid_t controller_id;
+    pid_t game_id;
+    game_id = runChild<GameProcess>();
+    std::cout << "[I] Game_id: " << game_id << std::endl;
     producer_id = runChild<ProducerProcess>();
     std::cout << "[I] Prod_id: " << producer_id << std::endl;
     filter_id = runChild<FilterProcess>();

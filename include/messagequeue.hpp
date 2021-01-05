@@ -3,6 +3,7 @@
 
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <chrono>
+#include <iostream>
 
 namespace bip = boost::interprocess;
 
@@ -13,8 +14,10 @@ struct coords_message {
 
 struct game_message {
     
-    int y{}; //required y
+    // int y{}; //required y
     //subject to future changes .-.
+
+    char key{}; //required / or pressed key
     std::chrono::system_clock::time_point deadline{};
 };
 

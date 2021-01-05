@@ -50,7 +50,7 @@ class FilterProcess {
         void convertFrame();
         void handleFrame();
 
-        void sendCoords(int cnt);
+        void sendCoords();
 
         [[noreturn]] void run();
 

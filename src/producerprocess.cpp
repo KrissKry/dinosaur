@@ -1,6 +1,8 @@
 
 #include "../include/producerprocess.hpp"
-
+ProducerProcess::ProducerProcess() {
+    loadInstantFrames();
+}
 void ProducerProcess::readFrame() {
 
     // cv::Mat temp_frame;
@@ -15,6 +17,7 @@ void ProducerProcess::readFrame() {
 void ProducerProcess::convertFrame() {
     
     //to-do to chyba do zmiany jednak 
+    //to-do urgent no kurna wez to zmien czlowieku to nie jest rownolegle, potencjalny lock
     do {
         if ( frameBuffer.size() > 0) {
 
@@ -50,9 +53,11 @@ void ProducerProcess::sendFrame() {
 [[noreturn]] void ProducerProcess::run() {
     
     std::cout << "[I] Producer running [[noreturn]].\n";
-
+    
     while ( true ) {
-        readFrame();
+        // readFrame();
+        getRequiredMove();
+        tryChoosingFrame();
         convertFrame();
         sendFrame();
         
@@ -70,3 +75,33 @@ void ProducerProcess::sendFrame() {
 //     convertFrame();
 //     sendFrame();
 // }
+
+void ProducerProcess::getRequiredMove() {
+    shque.pop(&message_in);
+
+    std::cout << "[P] Received Message with key: " << message_in.key << std::endl;
+}
+
+
+void ProducerProcess::tryChoosingFrame() {
+
+    if(message_in.key == 'w')
+        temp_frame = move_jump.clone();
+    else if (message_in.key == 's')
+        temp_frame = move_duck.clone();
+    else
+        temp_frame = move_idle.clone();
+
+    frameBuffer.push_back(temp_frame);
+    frame_counter++;
+    std::cout << "\n-----------------" << frame_counter << "-----------------\n" << std::flush;
+}
+
+void ProducerProcess::loadInstantFrames() {
+    move_jump = cv::imread("../assets/klatka-gora.jpg", 0);
+    move_idle = cv::imread("../assets/klatka-non.jpg", 0);
+    move_duck = cv::imread("../assets/klatka-dol.jpg", 0);
+
+    if (move_jump.empty() || move_idle.empty() || move_duck.empty())
+        std::cout << "[!!!] Failed reading imgs!" << std::endl;
+}

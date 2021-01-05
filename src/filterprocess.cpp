@@ -3,16 +3,16 @@
 
 [[noreturn]] void FilterProcess::run() {
     std::cout << "[I] Filter running [[noreturn]].\n";
-    int cnt = 0;
+    // int cnt = 0;
     while (true) {
         // TestOnce();
         // testFilter();
         getFrame();
         convertFrame();
-        // handleFrame();
-        sendCoords(cnt);
-        cnt++;
-        sleep(1);
+        handleFrame();
+        sendCoords();
+        // cnt++;
+        usleep(1000000);
     }
 }
 // void FilterProcess::TestOnce() {
@@ -62,7 +62,7 @@ void FilterProcess::handleFrame() {
 
     // moznaby zaimplementowac sortowanie - porowanine czasu przetwarzania potrzebne :>
     // std::sort(contours.begin(), contours.end(), cv::contourArea());
-
+    std::cout << "[F] Looking for decent contours." << std::endl << std::flush;
 
     for( int i = 0; i < contours.size(); i++ ) 
     {
@@ -73,14 +73,15 @@ void FilterProcess::handleFrame() {
             coords.x = contours.at(i).at(0).x;
             coords.y = contours.at(i).at(0).y;
             coords.timestamp = std::chrono::system_clock::now();
+            std::cout << "[F] Found contours at: " << coords.x << " " << coords.y << std::endl << std::flush;
             break;
         }
     }        
 }
 
-void FilterProcess::sendCoords(int cnt) {
+void FilterProcess::sendCoords() {
 
-    coords.x = cnt;
+    // coords.x = cnt;
     std::cout << "[F] Sending coords " << coords.x << " " << coords.y << std::endl;
     shque.push(&coords);
 }
