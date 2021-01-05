@@ -3,14 +3,15 @@
 
 [[noreturn]] void FilterProcess::run() {
     std::cout << "[I] Filter running [[noreturn]].\n";
-
+    int cnt = 0;
     while (true) {
         // TestOnce();
         // testFilter();
         getFrame();
         convertFrame();
         // handleFrame();
-        // sendCoords();
+        sendCoords(cnt);
+        cnt++;
         sleep(1);
     }
 }
@@ -33,9 +34,8 @@
 
 void FilterProcess::getFrame() {
     
-    membuf.pop(BUFFER_SIZE, frame_bytes);
+    membuf.pop(FRAME_SIZE, frame_bytes);
     std::cout << "[F] Received: " << frame_bytes[0] << frame_bytes[1] << frame_bytes[2] << std::endl;
-    // std::cout << "dalej: " << frame_bytes[200000] << " " << frame_bytes[2000000] << std::endl;
 }
 
 
@@ -78,8 +78,10 @@ void FilterProcess::handleFrame() {
     }        
 }
 
-// void FilterProcess::sendCoords() {
+void FilterProcess::sendCoords(int cnt) {
 
-//     shque.push(&coords);
-// }
+    coords.x = cnt;
+    std::cout << "[F] Sending coords " << coords.x << " " << coords.y << std::endl;
+    shque.push(&coords);
+}
 

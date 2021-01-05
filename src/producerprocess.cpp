@@ -43,7 +43,7 @@ void ProducerProcess::sendFrame() {
     //use shared queue and shared memory to put current frame in the buffer
     std::cout << "[P] Sending: " << output_buffer[0] << output_buffer[1] << output_buffer[2] << std::endl;
     // std::cout << "aa: " << output_buffer[200000] << " " << output_buffer[2000000] << std::endl;
-    membuf.push(BUFFER_SIZE, output_buffer);
+    membuf.push(FRAME_SIZE, output_buffer);
 
 }
 

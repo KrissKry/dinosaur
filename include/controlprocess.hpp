@@ -1,8 +1,13 @@
 #ifndef CONTROLPROCESS_HPP
 #define CONTROLPROCESS_HPP
 
-#include "sharedmemory.hpp"
-#include "sharedqueue.hpp"
+#include <iostream>
+#include <unistd.h>
+// #include "sharedmemory.hpp"
+// #include "sharedqueue.hpp"
+#include "messagequeue.hpp"
+// #include "gameprocess.hpp"
+#include "util.hpp"
 /*
     ControlProcess uses coords sent by filter process in shared memory to steer the dinosaur adequately.
     tutaj koncept ciężki ehh
@@ -24,17 +29,19 @@
 class ControlProcess {
 
     private:
-        SharedMemory shmem;
-        SharedQueue shque;
-        // GameProcess gameProcess;
-        
+
+        MessageQueue shque = {false, MQ_FILTER_CLIENT};
+        // GameProcess game;
+
+        coords_message current_coords;// = new coords_message;
+        char pressed_key{};
 
     public:
-        ControlProcess();
-        ~ControlProcess();
+        ControlProcess() {}
+        ~ControlProcess() {}
 
         void readCoords();
-        void steer();
+        void send_steering_signal();
 
 
         [[noreturn]] void run();

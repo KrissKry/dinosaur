@@ -4,8 +4,8 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-#include "sharedqueue.hpp"
-// #include "sharedmemory.hpp"
+// #include "sharedqueue.hpp"
+#include "messagequeue.hpp"
 #include "util.hpp"
 #include "memorybuffer.hpp"
 
@@ -27,24 +27,30 @@
 class FilterProcess {
 
     private:
-        // SharedQueue shque;
+        // SharedQueue* shque;
+        
         MemoryBuffer membuf = false;
+        MessageQueue shque = { true, MQ_FILTER_CLIENT };
        
         cv::Mat frame;
         char *frame_bytes = new char[WIDTH*HEIGHT*3]; 
 
-        coords_message coords{};
+        coords_message coords;
 
     public:
-        FilterProcess() {}
-        ~FilterProcess() {}
+        FilterProcess() {
+            // shque = new SharedQueue(true, MQ_FILTER_CLIENT);
+        }
+        ~FilterProcess() {
+            // delete shque;
+        }
         // void TestOnce();
 
         void getFrame();
         void convertFrame();
         void handleFrame();
 
-        void sendCoords();
+        void sendCoords(int cnt);
 
         [[noreturn]] void run();
 

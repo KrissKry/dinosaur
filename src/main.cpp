@@ -3,10 +3,13 @@
 #include <signal.h>
 #include "opencv2/opencv.hpp"
 #include "opencv2/core.hpp"
-// #include "../include/controlprocess.hpp"
+#include "../include/controlprocess.hpp"
 #include "../include/filterprocess.hpp"
 #include "../include/producerprocess.hpp"
-
+#include "../include/messagequeue.hpp"
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <mqueue.h>
 
 enum SCHED_OPTIONS { FIFO, DEADLINE, DEFAULT };
 
@@ -29,12 +32,49 @@ int main(int argc, char* argv[])
     // delete Filter;
 
     //JA WTEDY ROBIE NUMERY
+    // struct mq_attr attr;
+    // attr.mq_flags =0;
+    // attr.mq_maxmsg=10;
+    // attr.mq_msgsize = sizeof(coords_message);
+    // attr.mq_curmsgs = 0;
+    // // mq_unlink(MQ_FILTER_CLIENT);
+    // mqd_t meq = mq_open("xddd", O_CREAT | O_RDWR, 0666, NULL);
+    // mq_setattr(meq, &attr, NULL);
+     
+
+    // mq_attr at2;
+    // mq_getattr(meq, &at2);
+    // std::cout << at2.mq_maxmsg << " " << at2.mq_msgsize << std::endl;
+
+
+
+    // SharedQueue* sh1 = new SharedQueue(true, MQ_FILTER_CLIENT);
+    // SharedQueue* sh2 = new SharedQueue(false, MQ_FILTER_CLIENT);
+    // MessageQueue* mq1 = new MessageQueue(true, MQ_FILTER_CLIENT);
+    // MessageQueue* mq2 = new MessageQueue(false, MQ_FILTER_CLIENT);
+    // MessageQueue mq1(true, MQ_FILTER_CLIENT);
+    // MessageQueue mq2(false, MQ_FILTER_CLIENT);
+    // coords_message coord1;
+    // coords_message coord2;
+    // std::cout << "bruh\n";
+    // coord1.x = 5;
+    // coord1.y = 2;
+    // coord2.y = 1;
+    // std::cout << "Sending: " << coord2.x << " " << coord2.y << std::endl;
+    // mq1->push(&coord2);
+    // mq2->pop(&coord1);
+    // std::cout << "Got: " << coord1.x << " " << coord1.y << std::endl;
+
+
     pid_t producer_id;
     pid_t filter_id;
+    pid_t controller_id;
     producer_id = runChild<ProducerProcess>();
-    std::cout << "Prod_id: " << producer_id << std::endl;
+    std::cout << "[I] Prod_id: " << producer_id << std::endl;
     filter_id = runChild<FilterProcess>();
-    std::cout << "Filter_id: " << filter_id << std::endl;
+    std::cout << "[I] Filter_id: " << filter_id << std::endl;
+    controller_id = runChild<ControlProcess>();
+    std::cout << "[I] Controller_id: " << controller_id << std::endl;
 
 
     // pid_t producer_id, filter_id, controller_id;
@@ -61,7 +101,7 @@ void spawnChildren(pid_t &producer_id, pid_t &filter_id, pid_t &controller_id) {
     producer_id = runChild<ProducerProcess>();
 
     if ( controller_id == 0 || filter_id == 0 || producer_id == 0) {
-        std::cerr<<"Failed at forking children" << std::endl;
+        std::cerr<<"[!!!] Failed at forking children" << std::endl;
         //to-do invoke function killing all program's processes
         killChild(controller_id);
         killChild(filter_id);
@@ -128,7 +168,7 @@ pid_t runChild() {
 
     if (result == 0) {
         T child;
-        std::cout << "attempting to run child\n";
+        std::cout << "[I] Attempting to run child\n";
         child.run();
         // std::cout << "child running\n";
 
