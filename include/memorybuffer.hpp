@@ -6,12 +6,13 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include "util.hpp"
+#include <fcntl.h>
 using namespace boost::interprocess;
 
 
 struct frame_data {
     int id{};
-    char* pixels = new char[WIDTH*HEIGHT*3];
+    char* pixels = new char[FRAME_SIZE];
 };
 
 class MemoryBuffer {
@@ -21,20 +22,25 @@ class MemoryBuffer {
         MemoryBuffer(bool will_write) {
             if (will_write) {
 
-                std::cout<< "[I] Attempting to give mem access to producer...\n";
-                shm = shared_memory_object (open_or_create, FRAME_SHM, read_write); 
+                std::cout<< "[MEM] Resetting and acquiring shared memory READ/WRITE access..." << std::endl << std::flush;
+
+                // shared_memory_object::remove(FRAME_SHM);
+
+                shm = shared_memory_object ( open_or_create, FRAME_SHM, read_write); 
                 shm.truncate(WIDTH * HEIGHT * 3);           
 
                 region = mapped_region(shm, read_write);
 
             } else {
-                std::cout << "[I] Attempting to give mem access to filter...\n";
+                usleep(5000000);
+
+                std::cout << "[MEM] Acquiring shared memory READ access..." << std::endl << std::flush;
 
                 shm = shared_memory_object( open_only, FRAME_SHM, read_only );
                 region = mapped_region(shm, read_only);
 
             }
-            std::cout << "[I] Granted.\n";
+            std::cout << "[MEM] Success" << std::endl << std::flush;
 
         }
 
@@ -46,18 +52,16 @@ class MemoryBuffer {
         void push(int size, char* buf) {
 
             producer.wait();
-            std::cout << "[I] pushing " << size << " bytes to memory\n";
+            std::cout << "[MEM] pushing " << size << " bytes to memory\n";
             std::memcpy(region.get_address(), buf, size);
-            // std::cout << "[P] pushed.\n";
             consumer.post();
         }
 
         void pop(int size, char* buf) {
 
             consumer.wait();
-            std::cout << "[I] reading " << size << " bytes from memory\n";
+            std::cout << "[MEM] reading " << size << " bytes from memory\n";
             memcpy(buf, region.get_address(), size);
-            // std::cout << "[F] read.\n";
             producer.post();
         }
 
