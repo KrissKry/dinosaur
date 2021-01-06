@@ -1,0 +1,17 @@
+TO-DO SCOOBY-DOO:
+
+- Stopniowe zmniejszanie czasu na klatkę
+- Sprawdzić poprawność sprawdzania czasu przycisku i oczekiwanego deadline'a
+
+- Dodać możliwość wygenerowanie błędnego ruchu - wtedy gra odrzuca ten ruch i ponownie prosi o niego.
+
+- Zwiększenie pojemności współdzielonej pamięci? (bez sensu, bo gra nie będzie żądać dwóch ruchów jednocześnie)
+- Brak spania między akcjami każdego z procesów
+
+- Ogarnięcie maina - spawn, kill, szkielet na scheduler
+- Genload
+
+- Pomiary czasowe bez presji i pod presją - ile klatek ogarnie program bez presji a ile z, itd. wymyślić pomiary.
+
+- Dodanie trybu debug w którym printuje do konsoli 
+- Lub dodanie specjalnej kolejki komunikatów - Loggera, który na koniec programu zrzuca wszystko do jednego pliku 
