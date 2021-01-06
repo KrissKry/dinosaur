@@ -17,11 +17,12 @@ class ProducerProcess {
 
     private:
         // SharedQueue shque = true;
+        MemoryBuffer membuf = true;
         MessageQueue shque = {false, MQ_PRODUCER_GAME};
         game_message message_in;
-        MemoryBuffer membuf = true;
+        
 
-        cv::VideoCapture webcam = cv::VideoCapture(0);
+        // cv::VideoCapture webcam = cv::VideoCapture(0);
 
         std::deque<cv::Mat> frameBuffer;
         

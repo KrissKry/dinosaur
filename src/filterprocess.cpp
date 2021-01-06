@@ -4,6 +4,7 @@
 [[noreturn]] void FilterProcess::run() {
     std::cout << "[I] Filter running [[noreturn]].\n";
     // int cnt = 0;
+    usleep(500000);
     while (true) {
         // TestOnce();
         // testFilter();
@@ -12,7 +13,7 @@
         handleFrame();
         sendCoords();
         // cnt++;
-        usleep(1000000);
+        // usleep(1000000);
     }
 }
 // void FilterProcess::TestOnce() {
@@ -42,6 +43,8 @@ void FilterProcess::getFrame() {
 
 void FilterProcess::convertFrame() {
 
+    //jesli czytane z kamerki to CV_8UC3
+    //jesli z jpg to ?
     frame = cv::Mat(HEIGHT, WIDTH, CV_8UC3, &frame_bytes[0]);
 }
 
@@ -54,7 +57,7 @@ void FilterProcess::handleFrame() {
     std::vector< std::vector< cv::Point >> contours;
     std::vector< cv::Vec4i > hierarchy;
 
-    cv::cvtColor(frame, frameHSV, cv::COLOR_BGR2HSV);
+    cv::cvtColor(frame, frameHSV, cv::COLOR_RGB2HSV);
     
     cv::inRange(frameHSV, cv::Scalar(H_MIN, S_MIN, V_MIN), cv::Scalar(H_MAX, S_MAX, V_MAX), frameThreshold);
 
@@ -63,7 +66,10 @@ void FilterProcess::handleFrame() {
     // moznaby zaimplementowac sortowanie - porowanine czasu przetwarzania potrzebne :>
     // std::sort(contours.begin(), contours.end(), cv::contourArea());
     std::cout << "[F] Looking for decent contours." << std::endl << std::flush;
-
+    // cv::imshow("oryginalna", frame);
+    // cv::imshow("przedkonwersja", frameHSV);
+    // cv::imshow("obrobiona", frameThreshold);
+    // cv::waitKey(0);
     for( int i = 0; i < contours.size(); i++ ) 
     {
         if ( cv::contourArea(contours.at(i) ) > MIN_BALL_AREA )
@@ -74,9 +80,11 @@ void FilterProcess::handleFrame() {
             coords.y = contours.at(i).at(0).y;
             coords.timestamp = std::chrono::system_clock::now();
             std::cout << "[F] Found contours at: " << coords.x << " " << coords.y << std::endl << std::flush;
-            break;
+            return;
         }
     }        
+    //in case of object not found, idle move
+    coords.y = Y_REG;
 }
 
 void FilterProcess::sendCoords() {

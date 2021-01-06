@@ -42,10 +42,10 @@ class GameProcess {
 
 
         void receiveMove(char button) {}
-        void run();
+        [[noreturn]] void run();
 
         // static void* gameRunner(void* context);
-        [[noreturn]] void bitchImRunning();
+        // [[noreturn]] void bitchImRunning();
 };
 
 #endif

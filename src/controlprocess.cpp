@@ -20,15 +20,16 @@ void ControlProcess::send_steering_signal() {
 
     
     if (current_coords.y > Y_REG)
-        pressed_key = 'w';
+        pressed_key = 's';
     else if ( current_coords.y == Y_REG)
         pressed_key = ' ';
     else
-        pressed_key = 's';
+        pressed_key = 'w';
 
     current_move.key = pressed_key;
     current_move.deadline = std::chrono::system_clock::now();
     // game.receiveMove(pressed_key);
+    std::cout << "[C] Key pressed '" << current_move.key << "'" << std::endl << std::flush;
     game_queue.push(&current_move);
 }
 
@@ -38,11 +39,11 @@ void ControlProcess::send_steering_signal() {
     std::cout << "[I] Controller running [[noreturn]]." << std::endl;
     // std::thread runn_bitch(&game.run);
     // runn_bitch.join();
-
+    usleep(500000);
     while (true) {
         readCoords();
         std::cout << "[C] Read coords " << current_coords.x << " " << current_coords.y << std::endl; 
         send_steering_signal();
-        usleep(1000000);
+        // usleep(1000000);
     }
 }

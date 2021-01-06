@@ -50,45 +50,85 @@ int main(int argc, char* argv[])
 
 
 
-    // SharedQueue* sh1 = new SharedQueue(true, MQ_FILTER_CLIENT);
-    // SharedQueue* sh2 = new SharedQueue(false, MQ_FILTER_CLIENT);
+    
     // MessageQueue* mq1 = new MessageQueue(true, MQ_FILTER_CLIENT);
     // MessageQueue* mq2 = new MessageQueue(false, MQ_FILTER_CLIENT);
-    // MessageQueue mq1(true, MQ_FILTER_CLIENT);
-    // MessageQueue mq2(false, MQ_FILTER_CLIENT);
-    // coords_message coord1;
-    // coords_message coord2;
-    // std::cout << "bruh\n";
-    // coord1.x = 5;
-    // coord1.y = 2;
-    // coord2.y = 1;
-    // std::cout << "Sending: " << coord2.x << " " << coord2.y << std::endl;
-    // mq1->push(&coord2);
-    // mq2->pop(&coord1);
-    // std::cout << "Got: " << coord1.x << " " << coord1.y << std::endl;
-//     enum class Key_Press {
-//     W = (int)'w',
-//     S = (int)'s',
-//     NON = (int)' '
+
+    // MessageQueue* mq3 = new MessageQueue(true, MQ_PRODUCER_GAME);
+    // MessageQueue* mq4 = new MessageQueue(false, MQ_PRODUCER_GAME);
 
 
-        // std::cout <<
-        // return (char)(Key_Press( dist(m_mt) ));
+    // coords_message cords_out;
+    // coords_message cords_in;
+
+    // game_message key_out;
+    // game_message key_in;
+
+    // int cnt = 0;
+
+    // while (cnt < 10) {
+    //     cords_out.x = cnt;
+    //     cords_out.y = cords_out.x * 2;
+    //     std::cout <<"SEND OUT: " << cords_out.x << " " << cords_out.y << std::endl;
+    //     mq1->push(&cords_out);
+    //     cords_out.x += 1;
+    //     std::cout <<"SEND OUT: " << cords_out.x << " " << cords_out.y << std::endl;
+    //     mq1->push(&cords_out);
+    //     mq2->pop(&cords_in);
+    //     std::cout <<"RECEIVE: " << cords_in.x << " " << cords_in.y << std::endl;
+
+    //     cnt++;
+    // }
+    boost::interprocess::message_queue::remove(MQ_CLIENT_GAME);
+    boost::interprocess::message_queue::remove(MQ_FILTER_CLIENT);
+    boost::interprocess::message_queue::remove(MQ_PRODUCER_GAME);
+    boost::interprocess::shared_memory_object::remove(FRAME_SHM);
+    // shm = shared_memory_object ( create_only, FRAME_SHM, read_write); 
+    boost::interprocess::shared_memory_object( create_only, FRAME_SHM, read_write);
+    boost::interprocess::message_queue(create_only, MQ_PRODUCER_GAME, 10, sizeof(game_message) );
+    boost::interprocess::message_queue(create_only, MQ_CLIENT_GAME, 10, sizeof(game_message) );
+    boost::interprocess::message_queue(create_only, MQ_FILTER_CLIENT, 10, sizeof(coords_message) );
     pid_t producer_id;
     pid_t filter_id;
     pid_t controller_id;
     pid_t game_id;
+
+
+    //chyba w tej kolejnosci musza byc x dddd
     game_id = runChild<GameProcess>();
     std::cout << "[I] Game_id: " << game_id << std::endl;
-    producer_id = runChild<ProducerProcess>();
-    std::cout << "[I] Prod_id: " << producer_id << std::endl;
-    filter_id = runChild<FilterProcess>();
-    std::cout << "[I] Filter_id: " << filter_id << std::endl;
+
     controller_id = runChild<ControlProcess>();
     std::cout << "[I] Controller_id: " << controller_id << std::endl;
+    
+    producer_id = runChild<ProducerProcess>();
+    std::cout << "[I] Prod_id: " << producer_id << std::endl;
+
+    filter_id = runChild<FilterProcess>();
+    std::cout << "[I] Filter_id: " << filter_id << std::endl;
 
 
-    // pid_t producer_id, filter_id, controller_id;
+
+    int choice;
+
+    std::cin >> choice;
+
+    switch(choice) {
+        case 0: {
+            killChild(controller_id);
+            killChild(producer_id);
+            killChild(filter_id);
+            killChild(game_id);
+            std::cout << "Executed order 66" << std::endl << std::flush;
+            break;
+        }
+        default: {
+            std::cout << "bruh";
+            break;
+        }
+
+    }
+    // pid_t producer_id, filter_id, controller_id, game_id;
     // spawnChildren(producer_id, filter_id, controller_id);
 
     // setupChildren(SCHED_OPTIONS::FIFO, producer_id, filter_id, controller_id); 
@@ -96,6 +136,18 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+// void chooseAction() {
+//     int choice;
+
+//     cin >>choice;
+
+//     switch(choice): {
+//         case 0: {
+//             killChild(controller)
+//         }
+
+//     }
+// }
 //print pid_t of each child
 void printChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id) {
 
@@ -179,7 +231,7 @@ pid_t runChild() {
 
     if (result == 0) {
         T child;
-        std::cout << "[I] Attempting to run child\n";
+        // std::cout << "[I] Attempting to run child\n";
         child.run();
         // std::cout << "child running\n";
 

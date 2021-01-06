@@ -6,7 +6,7 @@
 #define FRAME_SHM_CNT 1                             //max number of frames in shared memory
 
 #define FRAME_SIZE WIDTH*HEIGHT*3                   //frame size (char array of cv::Mat.data) in bytes
-#define BUFFER_SIZE WIDTH*HEIGHT*3*FRAME_SHM_CNT    //buffer size in bytes for n frames
+#define BUFFER_SIZE FRAME_SIZE*FRAME_SHM_CNT        //buffer size in bytes for n frames
 
 #define PROD_SEM "PROD_SEM"                         //semaphore names
 #define CONS_SEM "CONS_SEM"

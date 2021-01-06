@@ -19,9 +19,9 @@
 #define H_MIN 3
 #define H_MAX 194
 #define S_MIN 98
-#define S_MAX 218
+#define S_MAX 255
 #define V_MIN 200
-#define V_MAX 256
+#define V_MAX 255
 #define MIN_BALL_AREA 10*10
 
 class FilterProcess {
