@@ -99,21 +99,22 @@ class MessageQueue {
             else
                 std::cout << "[!!!!!] Attempted to write to " << name << " without privileges" << std::endl;
 
-            std::cout << "[QUEUE] PUSHED: Current msgs in " << name << " " << mq->get_num_msg() << std::endl<<std::flush;
+            if (SHMQ_LOG)
+                std::cout << "[QUEUE] PUSHED: Current msgs in " << name << " " << mq->get_num_msg() << std::endl<<std::flush;
         }
 
 
         template <typename T>
         void pop(T* msg_struct) {
-
-            std::cout << "[QUEUE] PRE-POP: Current msgs in "<< name << " " << mq->get_num_msg() << std::endl<<std::flush;
+            if (SHMQ_LOG)
+                std::cout << "[QUEUE] PRE-POP: Current msgs in "<< name << " " << mq->get_num_msg() << std::endl<<std::flush;
 
             bip::message_queue::size_type bytes = 0;
             unsigned int priority = 0;
             // mq.receive( msg_struct, sizeof(msg_struct), sizeof(T), NULL);
             mq->receive(msg_struct, sizeof(T), bytes, priority);
-
-            std::cout << "[QUEUE] POPPED: Current msgs in "<< name << " " << mq->get_num_msg() << std::endl<<std::flush;
+            if (SHMQ_LOG)
+                std::cout << "[QUEUE] POPPED: Current msgs in "<< name << " " << mq->get_num_msg() << std::endl<<std::flush;
         }
 };
 

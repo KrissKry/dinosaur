@@ -29,7 +29,8 @@ void ControlProcess::send_steering_signal() {
     current_move.key = pressed_key;
     current_move.deadline = std::chrono::system_clock::now();
     // game.receiveMove(pressed_key);
-    std::cout << "[C] Key pressed '" << current_move.key << "'" << std::endl << std::flush;
+    if (CNSL_LOG)
+        std::cout << "[C] Key pressed '" << current_move.key << "'" << std::endl << std::flush;
     game_queue.push(&current_move);
 }
 
@@ -42,7 +43,8 @@ void ControlProcess::send_steering_signal() {
     usleep(500000);
     while (true) {
         readCoords();
-        std::cout << "[C] Read coords " << current_coords.x << " " << current_coords.y << std::endl; 
+        if (CNSL_LOG)
+            std::cout << "[C] Read coords " << current_coords.x << " " << current_coords.y << std::endl; 
         send_steering_signal();
         // usleep(1000000);
     }

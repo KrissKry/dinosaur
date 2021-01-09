@@ -10,10 +10,10 @@
 using namespace boost::interprocess;
 
 
-struct frame_data {
-    int id{};
-    char* pixels = new char[FRAME_SIZE];
-};
+// struct frame_data {
+//     int id{};
+//     char* pixels = new char[FRAME_SIZE];
+// };
 
 class MemoryBuffer {
 
@@ -27,7 +27,7 @@ class MemoryBuffer {
                 // shared_memory_object::remove(FRAME_SHM);
 
                 shm = shared_memory_object ( open_or_create, FRAME_SHM, read_write); 
-                shm.truncate(WIDTH * HEIGHT * 3);           
+                shm.truncate(FRAME_SIZE);           
 
                 region = mapped_region(shm, read_write);
 
@@ -52,7 +52,10 @@ class MemoryBuffer {
         void push(int size, char* buf) {
 
             producer.wait();
-            std::cout << "[MEM] pushing " << size << " bytes to memory\n";
+
+            if (SHMQ_LOG)
+                std::cout << "[MEM] pushing " << size << " bytes to memory\n";
+
             std::memcpy(region.get_address(), buf, size);
             consumer.post();
         }
@@ -60,7 +63,10 @@ class MemoryBuffer {
         void pop(int size, char* buf) {
 
             consumer.wait();
-            std::cout << "[MEM] reading " << size << " bytes from memory\n";
+            
+            if (SHMQ_LOG)
+                std::cout << "[MEM] reading " << size << " bytes from memory\n";
+
             memcpy(buf, region.get_address(), size);
             producer.post();
         }
