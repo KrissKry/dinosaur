@@ -92,7 +92,7 @@ void GameProcess::validateSignal() {
         time_for_move = time_for_move * scale_factor;
     
     } else {
-        std::cout << "[G] Game is fked now." << std::endl;
+        // std::cout << "[G] Game is fked now." << std::endl;
         failed = true;
     }
 
@@ -173,7 +173,7 @@ void GameProcess::resetGame() {
 std::string GameProcess::prepareOutputFile() {
 
     const char* target_folder = "../measurements/";
-    const char* prefix = "iters-";
+    // const char* prefix = "iters_ ";
     const char* extension = ".txt";
     std::string file_name{};
 
@@ -181,7 +181,8 @@ std::string GameProcess::prepareOutputFile() {
     std::time_t time_ctype = std::chrono::system_clock::to_time_t(time);
 
     file_name.append(target_folder);
-    file_name.append(prefix);
+    // file_name.append(prefix);
+    file_name.append(TEST_PREFIX);
     file_name.append( std::ctime(&time_ctype) );
     file_name.append(extension);
 

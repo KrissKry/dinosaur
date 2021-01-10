@@ -1,5 +1,6 @@
 #include <iostream>
 #include <signal.h>
+#include <thread>
 
 #include "../include/controlprocess.hpp"
 #include "../include/filterprocess.hpp"
@@ -7,7 +8,7 @@
 #include "../include/gameprocess.hpp"
 
 
-enum SCHED_OPTIONS { FIFO, DEADLINE, DEFAULT };
+enum SCHED_OPTIONS { FIFO, RR, DEFAULT };
 
 void spawnChildren(pid_t &producer_id, pid_t &filter_id, pid_t &controller_id, pid_t& game_id);
 void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_t controller_id, pid_t game_id);
@@ -17,7 +18,19 @@ template <typename T>
 pid_t runChild();
 void resetBoost();
 
+void schedMinMaxValues() {
+    int fifo = sched_get_priority_max( SCHED_FIFO );
+    int fifo_min = sched_get_priority_min( SCHED_FIFO );
+    int rr = sched_get_priority_max( SCHED_RR );
+    int rr_min = sched_get_priority_min( SCHED_RR );
 
+    int def = sched_get_priority_max( SCHED_OTHER );
+    int def_min = sched_get_priority_min( SCHED_OTHER );
+
+    std::cout << "MAX: OTHER: " << def << " | FIFO: " << fifo << " | RR: " << rr << std::endl << std::flush;
+
+    std::cout << "MIN: OTHER: " << def_min << " | FIFO: " << fifo_min << " | RR: " << rr_min << std::endl << std::flush;
+}
 
 
 
@@ -26,13 +39,14 @@ int main(int argc, char* argv[])
 
     pid_t producer_id, filter_id, controller_id, game_id;
     
+    // checkMax();
     resetBoost();
     spawnChildren(producer_id, filter_id, controller_id, game_id);
     setupChildren(SCHED_OPTIONS::DEFAULT, producer_id, filter_id, controller_id, game_id); 
     printChildren(producer_id, filter_id, controller_id, game_id);
 
+    
     int choice;
-
     std::cin >> choice;
 
     switch(choice) {
@@ -88,30 +102,35 @@ void spawnChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, p
 //set correct scheduler for our processes
 void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_t controller_id, pid_t game_id) {
 
-            //to-do set process scheduler adequately
     int result{};
-    sched_param params{1};
+    sched_param params{99};
+    sched_param def_param{};
     switch(sched){
         case SCHED_OPTIONS::FIFO: {
-
+            std::cout << "[MAIN] Setting FIFO SCHED" << std::endl << std::flush;
             result |= sched_setscheduler(producer_id, SCHED_FIFO, &params);
             result |= sched_setscheduler(filter_id, SCHED_FIFO, &params);
             result |= sched_setscheduler(controller_id, SCHED_FIFO, &params);
             result |= sched_setscheduler(game_id, SCHED_FIFO, &params);
-
+            break;
         }
 
-        case SCHED_OPTIONS::DEADLINE: {
-
-            result |= sched_setscheduler(producer_id, SCHED_DEADLINE, &params);
-            result |= sched_setscheduler(filter_id, SCHED_DEADLINE, &params);
-            result |= sched_setscheduler(controller_id, SCHED_DEADLINE, &params);
-            result |= sched_setscheduler(controller_id, SCHED_DEADLINE, &params);
-
+        case SCHED_OPTIONS::RR: {
+            std::cout << "[MAIN] Setting RR SCHED" << std::endl << std::flush;
+            result |= sched_setscheduler(producer_id, SCHED_RR, &params);
+            result |= sched_setscheduler(filter_id, SCHED_RR, &params);
+            result |= sched_setscheduler(controller_id, SCHED_RR, &params);
+            result |= sched_setscheduler(controller_id, SCHED_RR, &params);
+            break;
         }
 
         case SCHED_OPTIONS::DEFAULT: {
-            //yee
+
+            std::cout << "[MAIN] Setting OTHER SCHED" << std::endl << std::flush;
+            result |= sched_setscheduler(producer_id, SCHED_OTHER, &def_param);
+            result |= sched_setscheduler(filter_id, SCHED_OTHER, &def_param);
+            result |= sched_setscheduler(controller_id, SCHED_OTHER, &def_param);
+            result |= sched_setscheduler(controller_id, SCHED_OTHER, &def_param);
             break;
         }
 
