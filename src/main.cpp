@@ -11,7 +11,7 @@
 enum SCHED_OPTIONS { FIFO, RR, DEFAULT };
 
 void spawnChildren(pid_t &producer_id, pid_t &filter_id, pid_t &controller_id, pid_t& game_id);
-void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_t controller_id, pid_t game_id);
+void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_t controller_id, pid_t game_id, bool core_bound);
 void printChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, pid_t& game_id);
 void killChild(pid_t& process_id);
 template <typename T>
@@ -37,12 +37,13 @@ void schedMinMaxValues() {
 int main(int argc, char* argv[])
 {
 
+    schedMinMaxValues();
     pid_t producer_id, filter_id, controller_id, game_id;
     
     // checkMax();
     resetBoost();
     spawnChildren(producer_id, filter_id, controller_id, game_id);
-    setupChildren(SCHED_OPTIONS::DEFAULT, producer_id, filter_id, controller_id, game_id); 
+    setupChildren(SCHED_OPTIONS::RR, producer_id, filter_id, controller_id, game_id, CORE_BOUND); 
     printChildren(producer_id, filter_id, controller_id, game_id);
 
     
@@ -100,7 +101,7 @@ void spawnChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, p
 
 
 //set correct scheduler for our processes
-void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_t controller_id, pid_t game_id) {
+void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_t controller_id, pid_t game_id, bool core_bound) {
 
     int result{};
     sched_param params{99};
@@ -120,7 +121,7 @@ void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_
             result |= sched_setscheduler(producer_id, SCHED_RR, &params);
             result |= sched_setscheduler(filter_id, SCHED_RR, &params);
             result |= sched_setscheduler(controller_id, SCHED_RR, &params);
-            result |= sched_setscheduler(controller_id, SCHED_RR, &params);
+            result |= sched_setscheduler(game_id, SCHED_RR, &params);
             break;
         }
 
@@ -130,7 +131,7 @@ void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_
             result |= sched_setscheduler(producer_id, SCHED_OTHER, &def_param);
             result |= sched_setscheduler(filter_id, SCHED_OTHER, &def_param);
             result |= sched_setscheduler(controller_id, SCHED_OTHER, &def_param);
-            result |= sched_setscheduler(controller_id, SCHED_OTHER, &def_param);
+            result |= sched_setscheduler(game_id, SCHED_OTHER, &def_param);
             break;
         }
 
@@ -143,6 +144,41 @@ void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_
     if (result != 0) {
         std::cout<< strerror(errno) << std::endl;
         std::cout << "bruh";
+        
+    }
+
+    if (core_bound) {
+        result = 0;
+
+        cpu_set_t cpu;
+
+
+
+        CPU_ZERO(&cpu);
+        CPU_SET(1, &cpu);
+        result |= sched_setaffinity(producer_id, sizeof(cpu_set_t), &cpu);
+
+
+        // CPU_ZERO(&cpu);
+        // CPU_SET(1, &cpu);
+        result |= sched_setaffinity(filter_id, sizeof(cpu_set_t), &cpu);
+
+
+
+        // CPU_ZERO(&cpu);
+        // CPU_SET(2, &cpu);
+        result |= sched_setaffinity(controller_id, sizeof(cpu_set_t), &cpu);
+
+
+        // CPU_ZERO(&cpu);
+        // CPU_SET(3, &cpu);
+        result |= sched_setaffinity(game_id, sizeof(cpu_set_t), &cpu);
+
+    }
+
+    if( result != 0 ) {
+        std::cout << strerror(errno) << std::endl;
+        std::cout << "bruh2";
     }
 
     
@@ -161,6 +197,7 @@ void killChild(pid_t& process_id) {
 
 
 //returns a pid_t type for given object that will be running as a separate process
+// runChild<GameProcess>();
 template <typename T>
 pid_t runChild() {
 

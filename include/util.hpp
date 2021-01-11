@@ -21,8 +21,11 @@
 #define Y_REG 360
 #define Y_DWN 600
 
-#define ITERATIONS 100
+#define ITERATIONS 1
 #define CNSL_LOG 0                                  //bool if program should print most logs
 #define SHMQ_LOG 0                                  //bool if program should print Message Q / Shared Memory logs
 
-#define TEST_PREFIX "4_core_DEFAULT_99"
+#define TEST_PREFIX "4_core_RR_COREBOUND"           //current test being done 
+
+#define TEST_MODE 0                                 //if using automatic mode (for tests purposes mostly)
+#define CORE_BOUND 1

@@ -1,14 +1,39 @@
 #include "../include/producerprocess.hpp"
 
 ProducerProcess::ProducerProcess() {
-    loadInstantFrames();
+
+    if (TEST_MODE)
+        loadInstantFrames();
 }
+
+
+[[noreturn]] void ProducerProcess::run() {
+    
+    std::cout << "[I] Producer running [[noreturn]].\n";
+
+    while ( true ) {
+
+        getRequiredMove();
+
+        if (!TEST_MODE )
+            readFrame();
+        else
+            tryChoosingFrame();
+
+        convertFrame();
+        sendFrame();
+
+    }
+}
+
+
 void ProducerProcess::readFrame() {
 
-    // cv::Mat temp_frame;
-    // webcam.read(temp_frame);
+    webcam.read(temp_frame);
     frameBuffer.push_back(temp_frame);
     frame_counter++;
+
+
     std::cout << "\n-----------------" << frame_counter << "-----------------\n";
     // cv::imshow("Oryginalna", temp_frame);
     // cv::waitKey(0);
@@ -16,7 +41,7 @@ void ProducerProcess::readFrame() {
 
 void ProducerProcess::convertFrame() {
     
-    frame = frameBuffer.front();
+    cv::Mat frame = frameBuffer.front();
     frameBuffer.pop_front();
 
     //convert cv::Mat to bytes
@@ -34,26 +59,14 @@ void ProducerProcess::sendFrame() {
 
 }
 
-[[noreturn]] void ProducerProcess::run() {
-    
-    std::cout << "[I] Producer running [[noreturn]].\n";
 
-    while ( true ) {
-
-        getRequiredMove();
-        tryChoosingFrame();
-        convertFrame();
-        sendFrame();
-
-    }
-}
 
 
 void ProducerProcess::getRequiredMove() {
 
     shque.pop(&message_in);
 
-    if (CNSL_LOG)
+    // if (CNSL_LOG)
         std::cout << "[P] Received Message with key: " << message_in.key << std::endl;
 
 }

@@ -22,7 +22,7 @@ class ProducerProcess {
         game_message message_in;
         
 
-        // cv::VideoCapture webcam = cv::VideoCapture(0);
+        cv::VideoCapture webcam = cv::VideoCapture(0);
 
         std::deque<cv::Mat> frameBuffer;
         

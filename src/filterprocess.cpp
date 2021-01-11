@@ -49,6 +49,10 @@ void FilterProcess::handleFrame() {
     // moznaby zaimplementowac sortowanie - porowanine czasu przetwarzania potrzebne :>
     // std::sort(contours.begin(), contours.end(), cv::contourArea());
 
+    // cv::imshow("oryg", frame);
+    // cv::imshow("hsv", frameHSV);
+    // cv::imshow("konwert", frameThreshold);
+    // cv::waitKey(0);
 
     if (CNSL_LOG)
         std::cout << "[F] Looking for decent contours." << std::endl << std::flush;
@@ -62,7 +66,7 @@ void FilterProcess::handleFrame() {
             coords.x = contours.at(i).at(0).x;
             coords.y = contours.at(i).at(0).y;
             coords.timestamp = std::chrono::system_clock::now();
-            if (CNSL_LOG)
+            // if (CNSL_LOG)
                 std::cout << "[F] Found contours at: " << coords.x << " " << coords.y << std::endl << std::flush;
             return;
         }

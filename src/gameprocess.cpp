@@ -4,59 +4,16 @@
 
 GameProcess::GameProcess() {
     // max_waiting_time = 10;
+
+    if (TEST_MODE)
+        time_for_move = 16000; //16ms
+    else
+        time_for_move = 5000000; //5000ms == 5s
 }
-
-GameProcess::~GameProcess() {
-    // delete shque;s
-}
-
-void GameProcess::generateNextMove() {
-
-    if (!failed) {
-        // std::cout << "[G] Generating next move." << std::endl << std::flush;
-
-        current_key = rg.generateMove();
-
-        time_obstacle_spotted = std::chrono::system_clock::now();
-        
-        message_out.key = current_key;
-        message_out.deadline = time_obstacle_spotted;
-        if (CNSL_LOG)
-            std::cout << "[G] Next move: '" << current_key << "' with deadline UNKNOWN" << std::endl << std::flush;
-        
-
-    } else {
-
-        
-        // sem_wait(game_action);
-        if (ITERATIONS == 1) {
-            std::cout << "[G] Game ended. Saving stats to file." << std::endl << std::flush;
-            saveOnExit();
-            usleep(100000000);
-        } else {    
-            // std::cout << "[G] Game ended. Reverting state." << std::endl << std::flush;
-            ++iteration_id;
-            resetGame();
-        }
-        // usleep(100000000);
-    }
-}
-
-
-void GameProcess::sendPing() {
-
-    if (!failed) {
-        shque.push(&message_out);
-        if (CNSL_LOG)
-            std::cout << "[G] Pinged PROD with new move " << std::endl << std::flush;        
-    }
-}
-
-
 
 [[noreturn]] void GameProcess::run() {
 
-    usleep(500000);
+    usleep(1000000);
     std::cout << "[G] Game running [[noreturn]]" << std::endl << std::flush;
     while (true) {        
         generateNextMove();
@@ -67,11 +24,81 @@ void GameProcess::sendPing() {
 }
 
 
+void GameProcess::generateNextMove() {
+
+    if (!failed) {
+
+        //skip generating next move if human failed to satisfy it previously (time obviously hasnt ran out)
+        if (!human_incorrect_move) {
+
+            if ( !TEST_MODE ) {
+                //if in human mode, wait for a moment
+                usleep(1000000);
+            }
+
+            current_key = rg.generateMove();
+
+            time_obstacle_spotted = std::chrono::system_clock::now();
+            
+            message_out.key = current_key;
+            message_out.deadline = time_obstacle_spotted;
+        
+        if (CNSL_LOG)
+            std::cout << "[G] Next move: '" << current_key << "' with deadline UNKNOWN" << std::endl << std::flush;
+
+
+        //still waiting for human movement
+        } else {
+            // std::cout << "[G] still waiting for correct move of: '" << current_key << "'" << std::endl << std::flush;
+        }
+
+
+
+    } else {
+
+        
+        if (ITERATIONS == 1) {
+
+            std::cout << "[G] Game ended. Saving stats to file." << std::endl << std::flush;
+
+            saveOnExit();
+            usleep(100000000);
+
+
+        } else {    
+
+
+            ++iteration_id;
+            resetGame();
+
+
+        }
+    }
+}
+
+
+void GameProcess::sendPing() {
+
+    if (!failed) {
+        shque.push(&message_out);
+
+        if (CNSL_LOG)
+            std::cout << "[G] Pinged PROD with new move " << std::endl << std::flush;        
+    }
+}
+
+
+
+
+
 void GameProcess::waitForSignal() {
 
-    // std::cout << "[G] Waiting for input signal..." << std::endl << std::flush;
+
     steeringQueue.pop(&message_in);
+
     time_move_received = std::chrono::system_clock::now();
+
+
     if (CNSL_LOG)
         std::cout << "[G] Got input signal: '" << message_in.key << "'" << std::endl << std::flush;
     
@@ -83,34 +110,60 @@ void GameProcess::validateSignal() {
 
     
     std::chrono::microseconds time_elapsed_micro = std::chrono::duration_cast<std::chrono::microseconds>(time_move_received - time_obstacle_spotted);
-    // std::cout << "us elapsed: " << time_elapsed_micro.count() << std::endl << std::flush;
-    
-    if (message_in.key == message_out.key && (first_move || time_elapsed_micro.count() < time_for_move)) {
 
-        if (CNSL_LOG)
-            std::cout << "[G] Successful move." << std::endl;
-        time_for_move = time_for_move * scale_factor;
-    
+
+    //if human is playing, allow for fail moves
+    if (!TEST_MODE) {
+
+        if (message_in.key == message_out.key && time_elapsed_micro.count() < time_for_move) {
+            //human made a correct move
+            time_for_move = time_for_move * scale_factor;
+            human_incorrect_move = false;
+        
+        } else if (message_in.key != message_out.key &&  time_elapsed_micro.count() < time_for_move) {
+            //human made a wrong move but theres still time
+            human_incorrect_move = true;
+        
+        }else {
+        // } else if (message_in.key != message_out.key && time_elapsed_micro.count() > time_for_move) {
+            //human failed to make a correct move in given time
+            human_incorrect_move = true;
+            failed = true;
+        }
+
+
     } else {
-        // std::cout << "[G] Game is fked now." << std::endl;
-        failed = true;
-    }
 
-    if ( !first_move )
-        moves_time_micro.push_back( time_elapsed_micro.count() );
+
+        if (message_in.key == message_out.key && (first_move || time_elapsed_micro.count() < time_for_move)) {
+
+            if (CNSL_LOG)
+                std::cout << "[G] Successful move." << std::endl;
+
+            time_for_move = time_for_move * scale_factor;
+        
+        } else
+            failed = true;
+
+    }
 
     first_move = false;
 
-    // std::cout << "[G] New max time: " << time_for_move << std::endl << std::flush;
 }
 
 void GameProcess::saveOnExit() {
 
     auto time = std::chrono::system_clock::now();
     const char* extension = ".txt";
+    const char* target_path = "../single_measurements/";
+    std::string file_name{};
 
     std::time_t time_ctype = std::chrono::system_clock::to_time_t(time);
-    std::string file_name = std::ctime(&time_ctype);
+
+    file_name.append(target_path);
+    file_name.append( std::ctime(&time_ctype) );
+    file_name.append(extension);
+
 
     for( int length = 0; length < file_name.length(); length++) {
 
@@ -118,8 +171,8 @@ void GameProcess::saveOnExit() {
             file_name.at(length) = '-';
     }
 
-    file_name.append(extension);
     std::cout << "[G] saving to: " << file_name << std::endl << std::flush;
+
 
     std::ofstream outFile(file_name);
     outFile << "Moves accepted: " << moves_time_micro.size() << "\n";
@@ -143,8 +196,11 @@ void GameProcess::resetGame() {
     moves_time_micro.clear();
     failed = false;
     first_move = true;
-    time_for_move = 16000;
 
+    if (TEST_MODE)
+        time_for_move = 16000;
+    else
+        time_for_move = 5000000;
 
     if (iteration_id  >= ITERATIONS) {
         
