@@ -1,0 +1,14 @@
+TO-DO SCOOBY-DOO:
+
+- Stopniowe zmniejszanie czasu na klatkę DONE
+- Sprawdzić poprawność sprawdzania czasu przycisku i oczekiwanego deadline'a DONE
+- Brak spania między akcjami każdego z procesów DONE
+- Ogarnięcie maina - spawn, kill, szkielet na schedulerc DONE
+- Genload DONE
+- Pomiary czasowe bez presji i pod presją - ile klatek ogarnie program bez presji a ile z, itd. wymyślić pomiary DONE
+- Dodanie trybu debug w którym printuje do konsoli DONE
+ 
+
+- Dodać dla realizmu szansa na błąd producenta
+- Dodać bardziej skomplikowane (zabrudzone) klatki wytwarzane przez producenta
+- Dodać komunikat gra->main by zakończyć działanie

@@ -1,16 +1,31 @@
 
-#define WIDTH 1280
-#define HEIGHT 720
-#define QUEUE_NAME "KOLEJKA"
-#define FRAME_Q_NAME "KOLEJKA_KLATEK" //informacja o dostepnej klatce Producent->Filtr
-#define COORDS_Q_NAME "KOLEJKA_XY"  //informacja o dostepnych koordynatach Filtr->Klient
-// #define GAME_Q_NAME "KOLEJKA_RUCHOW" //informacja o następnym ruchu wymaganym przez grę
+#define WIDTH 1280                                  //expected frame size from webcam
+#define HEIGHT 720                                  //needs editing in case of different setup ;-;
 
-// WSPÓŁDZIELONA PAMIĘĆ DLA PRODUCENT->FILTR
-// WSPÓŁDZIELONA KOLEJKA DLA FILTR->KLIENT
+#define FRAME_SHM "PAMIEC_KLATEK"                   //shared memory name for frame data
+#define FRAME_SHM_CNT 1                             //max number of frames in shared memory
 
+#define FRAME_SIZE WIDTH*HEIGHT*3                   //frame size (char array of cv::Mat.data) in bytes
+#define BUFFER_SIZE FRAME_SIZE*FRAME_SHM_CNT        //buffer size in bytes for n frames
+
+#define PROD_SEM "PROD_SEM"                         //semaphore names
+#define CONS_SEM "CONS_SEM"
+#define GAME_SEM "GAME_SEM"
+
+#define MQ_PRODUCER_GAME "MQ_PRODUCER_GAME"         //message queue name shared between producer and game (game sends expected move)
+#define MQ_FILTER_CLIENT "MQ_FILTER_CLIENT"         //message queue name shared between filter and client (filter sends coords)
+#define MQ_CLIENT_GAME  "MQ_CLIENT_GAME"            //message queue with keys pressed sent to the game process
 //predefiniowane koordynaty
 #define X_REG 1000
 #define Y_UP  200
 #define Y_REG 360
 #define Y_DWN 600
+
+#define ITERATIONS 1
+#define CNSL_LOG 0                                  //bool if program should print most logs
+#define SHMQ_LOG 0                                  //bool if program should print Message Q / Shared Memory logs
+
+#define TEST_PREFIX "4_core_RR_COREBOUND"           //current test being done 
+
+#define TEST_MODE 0                                 //if using automatic mode (for tests purposes mostly)
+#define CORE_BOUND 1
