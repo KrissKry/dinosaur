@@ -26,6 +26,7 @@ class ProducerProcess {
 
         std::deque<cv::Mat> frameBuffer;
         
+        std::chrono::system_clock::time_point current_deadline{};
         cv::Mat temp_frame;
         cv::Mat frame;
         cv::Mat move_duck;
@@ -34,7 +35,8 @@ class ProducerProcess {
         
         int frame_counter{}; 
         
-        char* output_buffer = new char[WIDTH*HEIGHT*3];
+        char* output_buffer = new char[FRAME_SIZE];
+
 
     public:
         ProducerProcess();

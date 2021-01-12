@@ -31,7 +31,7 @@ class GameProcess {
         bool first_move = true;
         bool human_incorrect_move = false;
 
-        double scale_factor = 0.999;
+        double scale_factor{};
         // double max_waiting_time{};
         int time_for_move = 16000; //16k microseconds == 16ms, about 1/30th of a s.
         int iteration_id{};

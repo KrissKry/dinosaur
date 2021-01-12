@@ -37,13 +37,12 @@ void schedMinMaxValues() {
 int main(int argc, char* argv[])
 {
 
-    schedMinMaxValues();
+    // schedMinMaxValues();
     pid_t producer_id, filter_id, controller_id, game_id;
     
-    // checkMax();
     resetBoost();
     spawnChildren(producer_id, filter_id, controller_id, game_id);
-    setupChildren(SCHED_OPTIONS::RR, producer_id, filter_id, controller_id, game_id, CORE_BOUND); 
+    setupChildren(SCHED_OPTIONS::FIFO, producer_id, filter_id, controller_id, game_id, CORE_BOUND); 
     printChildren(producer_id, filter_id, controller_id, game_id);
 
     

@@ -5,10 +5,13 @@
 GameProcess::GameProcess() {
     // max_waiting_time = 10;
 
-    if (TEST_MODE)
+    if (TEST_MODE) {
         time_for_move = 16000; //16ms
-    else
+        scale_factor = 0.999;
+    } else {
         time_for_move = 5000000; //5000ms == 5s
+        scale_factor = 0.95;
+    }
 }
 
 [[noreturn]] void GameProcess::run() {
@@ -26,6 +29,7 @@ GameProcess::GameProcess() {
 
 void GameProcess::generateNextMove() {
 
+    //game has not ended yet
     if (!failed) {
 
         //skip generating next move if human failed to satisfy it previously (time obviously hasnt ran out)
@@ -43,8 +47,8 @@ void GameProcess::generateNextMove() {
             message_out.key = current_key;
             message_out.deadline = time_obstacle_spotted;
         
-        if (CNSL_LOG)
-            std::cout << "[G] Next move: '" << current_key << "' with deadline UNKNOWN" << std::endl << std::flush;
+        if (CNSL_LOG || !TEST_MODE)
+            std::cout << "[G] Next move: '" << current_key << "' with deadline " << time_for_move << "us" << std::endl << std::flush;
 
 
         //still waiting for human movement
@@ -57,7 +61,7 @@ void GameProcess::generateNextMove() {
     } else {
 
         
-        if (ITERATIONS == 1) {
+        if (ITERATIONS == 1 || !TEST_MODE) {
 
             std::cout << "[G] Game ended. Saving stats to file." << std::endl << std::flush;
 
@@ -119,6 +123,7 @@ void GameProcess::validateSignal() {
             //human made a correct move
             time_for_move = time_for_move * scale_factor;
             human_incorrect_move = false;
+            std::cout << "[G] Received correct move in " << time_elapsed_micro.count() << " us" << std::endl << std::flush;
         
         } else if (message_in.key != message_out.key &&  time_elapsed_micro.count() < time_for_move) {
             //human made a wrong move but theres still time
@@ -141,7 +146,12 @@ void GameProcess::validateSignal() {
                 std::cout << "[G] Successful move." << std::endl;
 
             time_for_move = time_for_move * scale_factor;
-        
+
+
+            if ( !first_move )
+                moves_time_micro.push_back( time_elapsed_micro.count() );
+
+                
         } else
             failed = true;
 

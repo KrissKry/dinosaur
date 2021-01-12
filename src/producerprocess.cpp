@@ -34,7 +34,7 @@ void ProducerProcess::readFrame() {
     frame_counter++;
 
 
-    std::cout << "\n-----------------" << frame_counter << "-----------------\n";
+    // std::cout << "\n-----------------" << frame_counter << "-----------------\n";
     // cv::imshow("Oryginalna", temp_frame);
     // cv::waitKey(0);
 }
@@ -66,9 +66,13 @@ void ProducerProcess::getRequiredMove() {
 
     shque.pop(&message_in);
 
-    // if (CNSL_LOG)
-        std::cout << "[P] Received Message with key: " << message_in.key << std::endl;
 
+
+    if (CNSL_LOG || (!TEST_MODE && current_deadline != message_in.deadline))
+        std::cout << "[P] Game is asking for '" << message_in.key << "' key." << std::endl;
+
+    if( current_deadline != message_in.deadline )
+        current_deadline = message_in.deadline;
 }
 
 
