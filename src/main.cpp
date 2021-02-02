@@ -6,11 +6,11 @@
 #include "../include/filterprocess.hpp"
 #include "../include/producerprocess.hpp"
 #include "../include/gameprocess.hpp"
-
+#include "../include/GameProcessV2.hpp"
 
 enum SCHED_OPTIONS { FIFO, RR, DEFAULT };
 
-void spawnChildren(pid_t &producer_id, pid_t &filter_id, pid_t &controller_id, pid_t& game_id);
+void spawnChildren(pid_t &producer_id, pid_t &filter_id, pid_t &controller_id, pid_t& game_id, pid_t& game_dev_id);
 void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_t controller_id, pid_t game_id, bool core_bound);
 void printChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, pid_t& game_id);
 void killChild(pid_t& process_id);
@@ -37,15 +37,16 @@ void schedMinMaxValues() {
 int main(int argc, char* argv[])
 {
 
-    // schedMinMaxValues();
-    pid_t producer_id, filter_id, controller_id, game_id;
+    // schedMinMaxValues();3
+    pid_t producer_id, filter_id, controller_id, game_id, game_dev_id;
     
     resetBoost();
-    spawnChildren(producer_id, filter_id, controller_id, game_id);
+    spawnChildren(producer_id, filter_id, controller_id, game_id, game_dev_id);
     setupChildren(SCHED_OPTIONS::FIFO, producer_id, filter_id, controller_id, game_id, CORE_BOUND); 
     printChildren(producer_id, filter_id, controller_id, game_id);
 
-    
+    // GameProcessV2 game;
+    // game.run();
     int choice;
     std::cin >> choice;
 
@@ -55,6 +56,7 @@ int main(int argc, char* argv[])
             killChild(producer_id);
             killChild(filter_id);
             killChild(game_id);
+            killChild(game_dev_id);
             std::cout << "Executed order 66" << std::endl << std::flush;
             break;
         }
@@ -79,20 +81,23 @@ void printChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, p
 
 
 
-void spawnChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, pid_t& game_id) {
+void spawnChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, pid_t& game_id, pid_t& game_dev_id) {
 
     game_id = runChild<GameProcess>();
     controller_id = runChild<ControlProcess>();
     producer_id = runChild<ProducerProcess>();
     filter_id = runChild<FilterProcess>();
 
-    if ( controller_id == 0 || filter_id == 0 || producer_id == 0 || game_id == 0) {
+    game_dev_id = runChild<GameProcessV2>();
+
+    if ( controller_id == 0 || filter_id == 0 || producer_id == 0 || game_id == 0 || game_dev_id == 0) {
         std::cerr<<"[!!!] Failed at forking children. Aborting..." << std::endl << std::flush;
 
         killChild(controller_id);
         killChild(filter_id);
         killChild(producer_id);
         killChild(game_id);
+        killChild(game_dev_id);
     }
 
 }

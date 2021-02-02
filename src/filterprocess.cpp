@@ -48,11 +48,11 @@ void FilterProcess::handleFrame() {
 
     // moznaby zaimplementowac sortowanie - porowanine czasu przetwarzania potrzebne :>
     // std::sort(contours.begin(), contours.end(), cv::contourArea());
-    cv::imshow("Kamerka", frame);
-    cv::imshow("Filtr", frameThreshold);
+    // cv::imshow("Kamerka", frame);
+    // cv::imshow("Filtr", frameThreshold);
 
-        if ( cv::waitKey(1) >= 0 )
-            std::cout << "xdd";
+    //     if ( cv::waitKey(1) >= 0 )
+    //         std::cout << "xdd";
 
     // cv::imshow("oryg", frame);
     // cv::imshow("hsv", frameHSV);
