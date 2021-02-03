@@ -20,7 +20,7 @@ include_directories(${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 link_libraries(${CMAKE_THREAD_LIBS_INIT} ${LIBRT} ${OpenCV_LIBS} ${SFML_LIBRARIES} ${SFML_DEPENDENCIES} ${SFML_FLAGS})
 # target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES})
 
-add_executable(dinosaur src/main.cpp src/producerprocess.cpp src/filterprocess.cpp src/controlprocess.cpp src/gameprocess.cpp)
+add_executable(dinosaur src/main.cpp src/producerprocess.cpp src/filterprocess.cpp src/controlprocess.cpp src/gameprocess.cpp src/game/animation.cpp src/game/sheep.cpp)
 
 
 # target_link_libraries(dinosaur PRIVATE ${OpenCV_LIBS} Threads::Threads rt)
