@@ -6,7 +6,7 @@
 #include "../include/filterprocess.hpp"
 #include "../include/producerprocess.hpp"
 #include "../include/gameprocess.hpp"
-#include "../include/GameProcessV2.hpp"
+#include "../include/game/gameprocessV2.hpp"
 
 enum SCHED_OPTIONS { FIFO, RR, DEFAULT };
 
