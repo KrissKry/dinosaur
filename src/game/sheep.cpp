@@ -2,14 +2,14 @@
 #include "../../include/game/sheep.hpp"
 
 
-Sheep::Sheep() {
+Sheep::Sheep(float frame_time) {
     
     //load sprite
     //load textures
     std::string filename = "../assets/gamedev/owca_sprite.png";
     texture.loadFromFile(filename);
 
-    animation = new Animation(&texture, 2);
+    animation = new Animation(&texture, 2, frame_time);
     body.setTexture(texture);
     body.setTextureRect( animation->getCurrentTexture() );
 

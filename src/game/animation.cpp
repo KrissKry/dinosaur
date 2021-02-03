@@ -1,11 +1,11 @@
 #include "../../include/game/animation.hpp"
 
 
-Animation::Animation(sf::Texture* texture, int image_count) {
+Animation::Animation(sf::Texture* texture, int image_count, float frame_time) {
 
 
     this->image_count = image_count - 1; //if image_count == 2, then we index with 0 and 1
-    this->frame_time = 750.0f; //750ms
+    this->frame_time = frame_time;
     this->elapsed_time = 0.0f;
     
     current_image.x = 0;

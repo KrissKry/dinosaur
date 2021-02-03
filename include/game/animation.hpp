@@ -2,7 +2,7 @@
 
 class Animation {
     public:
-        Animation(sf::Texture* texture, int image_count);
+        Animation(sf::Texture* texture, int image_count, float frame_time);
         ~Animation() {}
 
         // void draw(float delta_time);

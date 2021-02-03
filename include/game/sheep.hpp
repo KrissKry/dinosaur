@@ -10,7 +10,7 @@ class Sheep {
         sf::Texture texture;
 
     public:
-        Sheep();
+        Sheep(float frame_time);
         ~Sheep();
 
 
