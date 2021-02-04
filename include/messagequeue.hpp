@@ -93,7 +93,7 @@ class MessageQueue {
 
         template <typename T>
         void push(T* msg_struct) {
-
+            
             if (is_allowed_write)
                 mq->send( msg_struct, sizeof(T), 0 );
             else

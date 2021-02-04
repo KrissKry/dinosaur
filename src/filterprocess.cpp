@@ -51,8 +51,8 @@ void FilterProcess::handleFrame() {
     // cv::imshow("Kamerka", frame);
     // cv::imshow("Filtr", frameThreshold);
 
-    //     if ( cv::waitKey(1) >= 0 )
-    //         std::cout << "xdd";
+        // if ( cv::waitKey(1) >= 0 )
+            // std::cout << "xdd";
 
     // cv::imshow("oryg", frame);
     // cv::imshow("hsv", frameHSV);

@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     
     resetBoost();
     spawnChildren(producer_id, filter_id, controller_id, game_id, game_dev_id);
-    setupChildren(SCHED_OPTIONS::FIFO, producer_id, filter_id, controller_id, game_id, CORE_BOUND); 
+    setupChildren(SCHED_OPTIONS::DEFAULT, producer_id, filter_id, controller_id, game_id, CORE_BOUND); 
     printChildren(producer_id, filter_id, controller_id, game_id);
 
     // GameProcessV2 game;
@@ -83,20 +83,20 @@ void printChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, p
 
 void spawnChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, pid_t& game_id, pid_t& game_dev_id) {
 
-    game_id = runChild<GameProcess>();
+    //game_id = runChild<GameProcess>();
     controller_id = runChild<ControlProcess>();
     producer_id = runChild<ProducerProcess>();
     filter_id = runChild<FilterProcess>();
 
     game_dev_id = runChild<GameProcessV2>();
-
-    if ( controller_id == 0 || filter_id == 0 || producer_id == 0 || game_id == 0 || game_dev_id == 0) {
+        //|| game_id == 0
+    if ( controller_id == 0 || filter_id == 0 || producer_id == 0  || game_dev_id == 0) {
         std::cerr<<"[!!!] Failed at forking children. Aborting..." << std::endl << std::flush;
 
         killChild(controller_id);
         killChild(filter_id);
         killChild(producer_id);
-        killChild(game_id);
+        //killChild(game_id);
         killChild(game_dev_id);
     }
 
@@ -135,7 +135,7 @@ void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_
             result |= sched_setscheduler(producer_id, SCHED_OTHER, &def_param);
             result |= sched_setscheduler(filter_id, SCHED_OTHER, &def_param);
             result |= sched_setscheduler(controller_id, SCHED_OTHER, &def_param);
-            result |= sched_setscheduler(game_id, SCHED_OTHER, &def_param);
+            // result |= sched_setscheduler(game_id, SCHED_OTHER, &def_param);
             break;
         }
 
@@ -176,7 +176,7 @@ void setupChildren(SCHED_OPTIONS sched, pid_t producer_id, pid_t filter_id, pid_
 
         // CPU_ZERO(&cpu);
         // CPU_SET(3, &cpu);
-        result |= sched_setaffinity(game_id, sizeof(cpu_set_t), &cpu);
+        // result |= sched_setaffinity(game_id, sizeof(cpu_set_t), &cpu);
 
     }
 

@@ -77,7 +77,7 @@ void ProducerProcess::getRequiredMove() {
 
 
 void ProducerProcess::tryChoosingFrame() {
-
+    
     if(message_in.key == 'w') {
 
         temp_frame = move_jump.clone();
