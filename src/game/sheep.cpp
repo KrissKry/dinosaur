@@ -4,7 +4,8 @@
 
 Sheep::Sheep(float frame_time) {
     
-    texture.loadFromFile(sheep_sprite);
+    if ( !texture.loadFromFile(sheep_sprite) ) {}
+        // std::cout << "[SHEEP] Couldn't load texture" << std::endl;
 
 
     animation = new Animation(&texture, 2, frame_time);
@@ -17,7 +18,7 @@ Sheep::~Sheep() {
     delete animation;
 }
 
-void Sheep::move(sf::Vector2f vec) {
+void Sheep::setPosition(sf::Vector2f vec) {
     
     //absolute position
     body.setPosition(vec);

@@ -8,8 +8,7 @@
 #include "scoreboard.hpp"
 #include "obstacle.hpp"
 #include "../messagequeue.hpp"
-
-// #define LOG 1
+#include "gameutil.hpp"
 
 class GameProcessV2 {
 
@@ -20,19 +19,20 @@ class GameProcessV2 {
         sf::Clock move_clock;
         sf::Font font;
         sf::Time generate_time;
+        sf::RectangleShape floor;
 
         const std::string font_file = "../assets/gamedev/shakerato.otf";
 
 
 
-        unsigned int obstacle_time = 50000.0f; //50000ms //to-do change in the future
-        bool isOver = false;
 
+        float obstacle_time = 5000.0f; //10000ms //to-do change in the future
+        bool isOver = false;
+        bool firstRun = true;
         //to-do reduce time;
         //to-do animate object movement
         //to-do sheep jump animation or duck
         //to-do etc (...) xdd
-        
 
         std::thread communication_thread;
 
@@ -42,6 +42,8 @@ class GameProcessV2 {
         std::unique_ptr<Obstacle> obstacle;
 
 
+
+        
         game_message message_out; 
         game_message message_in;
         

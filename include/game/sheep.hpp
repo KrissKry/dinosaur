@@ -21,6 +21,6 @@ class Sheep {
         void animate(float delta_time);
 
         void scale(sf::Vector2f vec2);
-        void move(sf::Vector2f vec2);
+        void setPosition(sf::Vector2f vec2);
         void rotate(float degrees);
 };

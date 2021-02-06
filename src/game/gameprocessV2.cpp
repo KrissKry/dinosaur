@@ -10,11 +10,15 @@ GameProcessV2::GameProcessV2() {
 
     sheep = std::make_unique<Sheep>(250.0f);
     sheep->scale(sf::Vector2f(4.5f, 4.5f));
-    sheep->move(sf::Vector2f(50, 300));
+    sheep->setPosition(sf::Vector2f(SHEEP_XPOS, SHEEP_YPOS));
 
     scoreboard = std::make_unique<Scoreboard>(font);
 
     obstacle = std::make_unique<Obstacle>(font);
+
+    floor.setSize( sf::Vector2f(GAME_WIDTH, 0.25f * GAME_HEIGHT) );
+    floor.setPosition( sf::Vector2f(0.0f, FLOOR_YPOS) );
+    floor.setFillColor( sf::Color(220, 255, 210, 255) );
 
     animate_clock.restart();
     move_clock.restart();
@@ -66,15 +70,23 @@ void GameProcessV2::validateSignal() {
 
             scoreboard->addPoint();
             //to-do print SUCCESS text
-            //delay generation for some time idk
-            usleep(1500000);
+
+            obstacle->setCooldown();
+            usleep( obstacle->getCooldown()*1000 );
             nextObstacle();
             sendRequest();
         }
         
     } else {
-        std::cout << "[G A M E] its wong" << std::endl << std::flush;
+
+        sf::Time temp = move_clock.getElapsedTime();
+        if (temp.asMilliseconds() < obstacle_time) {
+            sendRequest();
+        } else {
+            std::cout << "[G A M E] its wong" << std::endl << std::flush;
+            isOver = true;
         // sendRequest();
+        }
     }
 }
 
@@ -82,7 +94,8 @@ void GameProcessV2::validateSignal() {
 
 void GameProcessV2::nextObstacle() {
     
-    obstacle->cleanup();
+   
+    obstacle->cleanup(obstacle_time);
     obstacle->generateObstacle();
     message_out.key = obstacle->getCurrentKey();
 }
@@ -101,16 +114,14 @@ void GameProcessV2::sendRequest() {
     sf::Time delta_time;
 
     // usleep(2000000);
-    
-;
-    
-    sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(800, 600), "Mloda owca raper czlowieniu");
+    usleep(150000);
+    sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Mloda owca raper czlowieniu");
     
     window.setFramerateLimit(30);
-    usleep(150000);
+    
     nextObstacle();
     sendRequest();
-
+    // std::cout << "[GAME] b4 loop\n";
     while (true) {
 
         if (window.isOpen()) {
@@ -123,17 +134,20 @@ void GameProcessV2::sendRequest() {
 
             delta_time = animate_clock.getElapsedTime();
             sheep->animate( delta_time.asMilliseconds() );
+            obstacle->animate( delta_time.asMilliseconds() );
             animate_clock.restart();
-
+            // std::cout << "[GAME] loop\n";
 
 
             window.clear( sf::Color(250, 225, 150, 255));
 
             if (!isOver) {
-                sheep->draw(window);
+                
+                window.draw(floor);
                 scoreboard->draw(window);
+                sheep->draw(window);
                 obstacle->draw(window);
-            
+
             } else {
 
                 scoreboard->draw(window);

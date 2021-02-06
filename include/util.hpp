@@ -23,10 +23,10 @@
 #define Y_DWN 600
 
 #define ITERATIONS 10
-#define CNSL_LOG 0                                  //bool if program should print most logs
+#define CNSL_LOG 1                                  //bool if program should print most logs
 #define SHMQ_LOG 0                                  //bool if program should print Message Q / Shared Memory logs
 
 #define TEST_PREFIX "RANDOM_"                       //current test being done 
 
-#define TEST_MODE 1                                 //if using automatic mode (for tests purposes mostly)
+#define TEST_MODE 0                                 //if using automatic mode (for tests purposes mostly)
 #define CORE_BOUND 1
