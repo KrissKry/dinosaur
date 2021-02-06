@@ -9,6 +9,8 @@ class Sheep {
         sf::Sprite body;
         sf::Texture texture;
 
+        const std::string sheep_sprite = "../assets/gamedev/owca_sprite.png";
+
     public:
         Sheep(float frame_time);
         ~Sheep();

@@ -15,19 +15,24 @@ class GameProcessV2 {
 
     private:
 
-        sf::RenderWindow window;
+        
         sf::Clock animate_clock;
         sf::Clock move_clock;
         sf::Font font;
         sf::Time generate_time;
 
-        unsigned int obstacle_time = 50000.0f; //5000ms
+        const std::string font_file = "../assets/gamedev/shakerato.otf";
+
+
+
+        unsigned int obstacle_time = 50000.0f; //50000ms //to-do change in the future
+        bool isOver = false;
+
         //to-do reduce time;
         //to-do animate object movement
         //to-do sheep jump animation or duck
         //to-do etc (...) xdd
-        bool isOver = false;
-
+        
 
         std::thread communication_thread;
 
@@ -52,11 +57,6 @@ class GameProcessV2 {
         
         void nextObstacle();
         void sendRequest();
-
-
-        std::thread startCommunication() { 
-            std::cout << "THREAD BITCHHH\n";
-            return std::thread(&GameProcessV2::communication, this); }
 
     public:
 

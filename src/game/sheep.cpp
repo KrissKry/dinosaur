@@ -4,25 +4,21 @@
 
 Sheep::Sheep(float frame_time) {
     
-    //load sprite
-    //load textures
-    std::string filename = "../assets/gamedev/owca_sprite.png";
-    texture.loadFromFile(filename);
+    texture.loadFromFile(sheep_sprite);
+
 
     animation = new Animation(&texture, 2, frame_time);
+
     body.setTexture(texture);
     body.setTextureRect( animation->getCurrentTexture() );
-
 }
+
 Sheep::~Sheep() {
     delete animation;
 }
 
 void Sheep::move(sf::Vector2f vec) {
     
-    //relative move (offset)
-    // body.move(vec);
-
     //absolute position
     body.setPosition(vec);
 }
