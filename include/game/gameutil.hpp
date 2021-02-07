@@ -8,3 +8,5 @@
 
 #define OBSTACLE_JMP_Y 300
 #define OBSTACLE_DCK_Y 410
+
+#define OBSTACLE_COOLDOWN 2000.0f

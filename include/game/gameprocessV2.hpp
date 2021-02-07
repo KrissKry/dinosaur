@@ -9,6 +9,7 @@
 #include "obstacle.hpp"
 #include "../messagequeue.hpp"
 #include "gameutil.hpp"
+#include "screenoverlay.hpp"
 
 class GameProcessV2 {
 
@@ -40,7 +41,7 @@ class GameProcessV2 {
         std::unique_ptr<Sheep> sheep;
         std::unique_ptr<Scoreboard> scoreboard;
         std::unique_ptr<Obstacle> obstacle;
-
+        ScreenOverlay* screenoverlay;
 
 
         
@@ -60,6 +61,8 @@ class GameProcessV2 {
         void nextObstacle();
         void sendRequest();
 
+            //avengers
+        void endGame();
     public:
 
         GameProcessV2();

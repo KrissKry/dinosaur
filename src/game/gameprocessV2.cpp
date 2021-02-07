@@ -20,6 +20,10 @@ GameProcessV2::GameProcessV2() {
     floor.setPosition( sf::Vector2f(0.0f, FLOOR_YPOS) );
     floor.setFillColor( sf::Color(220, 255, 210, 255) );
 
+    screenoverlay = new ScreenOverlay(OBSTACLE_COOLDOWN);
+    
+    
+    
     animate_clock.restart();
     move_clock.restart();
 
@@ -33,6 +37,8 @@ GameProcessV2::~GameProcessV2() {
     sheep.reset();
     scoreboard.reset();
     obstacle.reset();
+    
+    delete screenoverlay;
 
     if (communication_thread.joinable())
         communication_thread.join();
@@ -47,7 +53,7 @@ void GameProcessV2::communication() {
     }
 }
 
-
+//wait for signal in message queue
 void GameProcessV2::awaitSignal() {
     in_queue.pop(&message_in);
 }
@@ -61,14 +67,16 @@ void GameProcessV2::validateSignal() {
         move_clock.restart();
 
 
-        //temporary - przeniesc gdzies gdzie bedzie aktualizowac na biezaco 
+        //exceeded time to dodge the obstacle
         if (temp.asMilliseconds() > obstacle_time) {
-            isOver = true;
-            std::cout << "[G A M E] Exceeded time. Game over." << std::endl << std::flush;
-        }
-        else {
+          
+            endGame();
+        
+        //success in dodging the obstacle
+        } else {
 
             scoreboard->addPoint();
+            screenoverlay->success();
             //to-do print SUCCESS text
 
             obstacle->setCooldown();
@@ -77,15 +85,19 @@ void GameProcessV2::validateSignal() {
             sendRequest();
         }
         
+
+    //wrong key received
     } else {
 
         sf::Time temp = move_clock.getElapsedTime();
+
+        //if there is still time left
         if (temp.asMilliseconds() < obstacle_time) {
             sendRequest();
+
+        //wrong key and player ran out of time
         } else {
-            std::cout << "[G A M E] its wong" << std::endl << std::flush;
-            isOver = true;
-        // sendRequest();
+            endGame();
         }
     }
 }
@@ -94,7 +106,6 @@ void GameProcessV2::validateSignal() {
 
 void GameProcessV2::nextObstacle() {
     
-   
     obstacle->cleanup(obstacle_time);
     obstacle->generateObstacle();
     message_out.key = obstacle->getCurrentKey();
@@ -102,10 +113,14 @@ void GameProcessV2::nextObstacle() {
 
 
 void GameProcessV2::sendRequest() {
-
     out_queue.push(&message_out);
 }
 
+
+void GameProcessV2::endGame() {
+    std::cout << "[GAME] Exceeded time. Game over." << std::endl << std::flush;
+    isOver = true;
+}
 
 
 [[noreturn]] void GameProcessV2::run()
@@ -113,15 +128,15 @@ void GameProcessV2::sendRequest() {
     sf::Event event;
     sf::Time delta_time;
 
-    // usleep(2000000);
     usleep(150000);
+
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Mloda owca raper czlowieniu");
-    
     window.setFramerateLimit(30);
     
     nextObstacle();
     sendRequest();
-    // std::cout << "[GAME] b4 loop\n";
+
+
     while (true) {
 
         if (window.isOpen()) {
@@ -131,18 +146,20 @@ void GameProcessV2::sendRequest() {
                     window.close();
             }
                 
-
+            /* Animation part */
             delta_time = animate_clock.getElapsedTime();
             sheep->animate( delta_time.asMilliseconds() );
             obstacle->animate( delta_time.asMilliseconds() );
+            screenoverlay->animate( delta_time.asMilliseconds() );
             animate_clock.restart();
-            // std::cout << "[GAME] loop\n";
 
 
-            window.clear( sf::Color(250, 225, 150, 255));
+            /* Render part */
+            window.clear( sf::Color(250, 225, 150, 255)); //to-do color animation on success
 
             if (!isOver) {
                 
+                screenoverlay->draw(window);
                 window.draw(floor);
                 scoreboard->draw(window);
                 sheep->draw(window);
