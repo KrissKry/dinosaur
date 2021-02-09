@@ -11,7 +11,7 @@ find_package(SFML 2 REQUIRED audio graphics window system)
 find_library(LIBRT rt REQUIRED)
 
 if(SFML_FOUND)
-    message("eszkereeee")
+    message("[SFML] Package found.")
     include_directories(${SFML_INCLUDE_DIR})
     set(SFML_FLAGS -lsfml-graphics -lsfml-window -lsfml-system)
 endif()
@@ -26,11 +26,11 @@ add_executable(dinosaur
             src/producerprocess.cpp 
             src/filterprocess.cpp 
             src/controlprocess.cpp 
-            src/gameprocess.cpp 
-            src/game/gameprocessV2.cpp 
+            # src/gameprocess.cpp 
             src/game/animation.cpp 
             src/game/sheep.cpp 
             src/game/obstacle.cpp
             src/game/screenoverlay.cpp
+            src/game/newgameprocess.cpp
             )
 

@@ -6,8 +6,8 @@
 #include "../include/filterprocess.hpp"
 #include "../include/producerprocess.hpp"
 #include "../include/gameprocess.hpp"
-#include "../include/game/gameprocessV2.hpp"
-
+// #include "../include/game/gameprocessV2.hpp"
+#include "../include/game/newgameprocess.hpp"
 enum SCHED_OPTIONS { FIFO, RR, DEFAULT };
 
 void spawnChildren(pid_t &producer_id, pid_t &filter_id, pid_t &controller_id, pid_t& game_id, pid_t& game_dev_id);
@@ -76,7 +76,7 @@ void printChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, p
     std::cout << "Prod_id: " << producer_id << std::endl << std::flush;
     std::cout << "Filter_id: " << filter_id << std::endl << std::flush;
     std::cout << "Controller_id: " << controller_id  << std::endl << std::flush;
-    std::cout << "Game_id: " << game_id << std::endl << std::flush;
+    // std::cout << "Game_id: " << game_id << std::endl << std::flush;
 }
 
 
@@ -88,7 +88,7 @@ void spawnChildren(pid_t& producer_id, pid_t& filter_id, pid_t& controller_id, p
     producer_id = runChild<ProducerProcess>();
     filter_id = runChild<FilterProcess>();
 
-    game_dev_id = runChild<GameProcessV2>();
+    game_dev_id = runChild<NewGameProcess>();
         //|| game_id == 0
     if ( controller_id == 0 || filter_id == 0 || producer_id == 0  || game_dev_id == 0) {
         std::cerr<<"[!!!] Failed at forking children. Aborting..." << std::endl << std::flush;

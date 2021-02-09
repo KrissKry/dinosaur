@@ -20,7 +20,7 @@ GameProcessV2::GameProcessV2() {
     floor.setPosition( sf::Vector2f(0.0f, FLOOR_YPOS) );
     floor.setFillColor( sf::Color(220, 255, 210, 255) );
 
-    screenoverlay = new ScreenOverlay(OBSTACLE_COOLDOWN);
+    screenoverlay = new ScreenOverlay(OBSTACLE_COOLDOWN, font);
     
     
     
@@ -60,17 +60,18 @@ void GameProcessV2::awaitSignal() {
 
 void GameProcessV2::validateSignal() {
 
-    //correct key received
+    /*//correct key received
     if (message_in.key == message_out.key && !isOver) {
 
         sf::Time temp = move_clock.getElapsedTime();
-        move_clock.restart();
+        
 
 
         //exceeded time to dodge the obstacle
         if (temp.asMilliseconds() > obstacle_time) {
           
             endGame();
+            screenoverlay->gameover();
         
         //success in dodging the obstacle
         } else {
@@ -78,10 +79,11 @@ void GameProcessV2::validateSignal() {
             scoreboard->addPoint();
             screenoverlay->success();
             //to-do print SUCCESS text
-
             obstacle->setCooldown();
             usleep( obstacle->getCooldown()*1000 );
+            
             nextObstacle();
+            move_clock.restart();
             sendRequest();
         }
         
@@ -98,17 +100,67 @@ void GameProcessV2::validateSignal() {
         //wrong key and player ran out of time
         } else {
             endGame();
+            screenoverlay->gameover();
         }
     }
+
+*/
+    //to-do nowy sposób walidacji ruchu - ruch i sprawdzenie kolizji?
+    sheep->validateMovement(message_in.key);
+
+    sf::Time temp = move_clock.getElapsedTime();
+
+    if (temp.asMilliseconds() > obstacle_time) {
+
+        if( sheep->getCollided() ) {
+
+            endGame();
+            screenoverlay->gameover();
+        
+        
+        } else {
+            
+            continueGame();
+            sendRequest();
+        }
+
+
+    } else {
+        sendRequest();
+    }
+
+
 }
 
-
+void GameProcessV2::continueGame() {
+    
+    scoreboard->addPoint();
+    screenoverlay->success();
+    
+    //to-do print SUCCESS text
+    obstacle->setCooldown();
+    // usleep( obstacle->getCooldown() * 1000 );
+    
+    nextObstacle();
+    move_clock.restart();
+}
 
 void GameProcessV2::nextObstacle() {
     
+    obstacle_time *= GAME_SCALING_FACTOR;
+    std::cout << "[GAME] New obstacle time: " << obstacle_time << std::endl;
+
     obstacle->cleanup(obstacle_time);
-    obstacle->generateObstacle();
-    message_out.key = obstacle->getCurrentKey();
+
+//to blokuje owce od skoku
+    do {
+        obstacle->generateObstacle();
+        message_out.key = obstacle->getCurrentKey();
+
+        if (message_out.key == ' ')
+            usleep( obstacle->getSleepTime() );
+
+    } while ( message_out.key == ' ' );
 }
 
 
@@ -131,8 +183,8 @@ void GameProcessV2::endGame() {
     usleep(150000);
 
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Mloda owca raper czlowieniu");
-    window.setFramerateLimit(30);
-    
+    window.setFramerateLimit(60);
+
     nextObstacle();
     sendRequest();
 
@@ -147,15 +199,24 @@ void GameProcessV2::endGame() {
             }
                 
             /* Animation part */
-            delta_time = animate_clock.getElapsedTime();
-            sheep->animate( delta_time.asMilliseconds() );
-            obstacle->animate( delta_time.asMilliseconds() );
-            screenoverlay->animate( delta_time.asMilliseconds() );
-            animate_clock.restart();
+            if (!isOver) {
+                delta_time = animate_clock.getElapsedTime();
+                sheep->setCollided ( collisionchecker.checkCollision(sheep->getBody(), obstacle->getRect()) );
+                sheep->animate( delta_time.asMilliseconds() );
+                sheep->updatePosition();
+                obstacle->animate( delta_time.asMilliseconds() );
+                screenoverlay->animate( delta_time.asMilliseconds() );
+                animate_clock.restart();
+            
+            } else {
+                delta_time = animate_clock.getElapsedTime();
+                screenoverlay->animate( delta_time.asMilliseconds() );
+                animate_clock.restart();
+            }
 
 
             /* Render part */
-            window.clear( sf::Color(250, 225, 150, 255)); //to-do color animation on success
+            window.clear( sf::Color(250, 225, 150, 255));
 
             if (!isOver) {
                 
@@ -166,7 +227,8 @@ void GameProcessV2::endGame() {
                 obstacle->draw(window);
 
             } else {
-
+                //to-do game over overlay
+                screenoverlay->draw(window);
                 scoreboard->draw(window);
             }
 

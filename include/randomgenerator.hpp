@@ -29,6 +29,12 @@ class RandomGenerator {
             // return (char)(Key_Press( dist(m_mt) ));
             return moves[ dist(m_mt) ];
         }
+
+        int generateSleepTime() {
+            std::uniform_int_distribution<int> dist(0, 200);
+
+            return dist(m_mt) * 10000;
+        }
 };
 
 

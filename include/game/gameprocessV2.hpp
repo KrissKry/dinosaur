@@ -10,6 +10,7 @@
 #include "../messagequeue.hpp"
 #include "gameutil.hpp"
 #include "screenoverlay.hpp"
+#include "collisionchecker.hpp"
 
 class GameProcessV2 {
 
@@ -42,7 +43,7 @@ class GameProcessV2 {
         std::unique_ptr<Scoreboard> scoreboard;
         std::unique_ptr<Obstacle> obstacle;
         ScreenOverlay* screenoverlay;
-
+        CollisionChecker collisionchecker;
 
         
         game_message message_out; 
@@ -54,15 +55,18 @@ class GameProcessV2 {
 
         //connects awaitsignal and validatesignal, uses thread  to fucking work jesus
         void communication();
-
         void awaitSignal();
         void validateSignal();
         
         void nextObstacle();
         void sendRequest();
 
+        void checkCollision( sf::Sprite sheep, sf::RectangleShape obstacle);
+        
+        void continueGame();
             //avengers
         void endGame();
+
     public:
 
         GameProcessV2();
